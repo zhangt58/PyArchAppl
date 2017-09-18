@@ -1,3 +1,9 @@
+pyarchappl (0.1.0-2) unstable; urgency=medium
+
+  * Fix runtime dependences.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Mon, 18 Sep 2017 16:59:33 -0400
+
 pyarchappl (0.1.0-1) unstable; urgency=medium
 
   * Initial release.
