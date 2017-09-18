@@ -15,7 +15,8 @@ Vcs-Browser: https://github.com/archman/pyarchappl.git
 
 Package: python-pyarchappl
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}
+Depends: ${python:Depends}, ${misc:Depends},
+         python-requests, python-pandas
 Description: Python interface for Archiver Appliance (Python 2)
  Python interface for Archiver Appliance.
  .
@@ -24,6 +25,7 @@ Description: Python interface for Archiver Appliance (Python 2)
 Package: python3-pyarchappl
 Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends}
+         python3-requests, python3-pandas
 Description: Python interface for Archiver Appliance (Python 3)
  Python interface for Archiver Appliance.
  .
