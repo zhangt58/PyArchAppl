@@ -1,0 +1,31 @@
+Source: pyarchappl
+Section: python
+Priority: optional
+Maintainer: Tong Zhang <zhangt@frib.msu.edu>
+Build-Depends: debhelper (>=9),dh-python,python-all (>= 2.6.6-3~),
+               python-setuptools,python3-all,python3-setuptools, 
+               python-requests, python3-requests,
+               python-pandas, python3-pandas,
+               python-nose, python3-nose
+Standards-Version: 3.9.6
+Homepage: https://github.com/archman/pyarchappl
+X-Python-Version: >= 2.6
+X-Python3-Version: >= 3.2
+Vcs-Git: https://github.com/archman/pyarchappl.git
+Vcs-Browser: https://github.com/archman/pyarchappl.git
+
+Package: python-pyarchappl
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description> (Python 2)
+ <insert long description, indented with spaces>
+ .
+ This package installs the library for Python 2.
+
+Package: python3-pyarchappl
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description> (Python 3)
+ <insert long description, indented with spaces>
+ .
+ This package installs the library for Python 3.
