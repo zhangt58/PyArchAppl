@@ -16,15 +16,15 @@ Vcs-Browser: https://github.com/archman/pyarchappl.git
 Package: python-pyarchappl
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description> (Python 2)
- <insert long description, indented with spaces>
+Description: Python interface for Archiver Appliance (Python 2)
+ Python interface for Archiver Appliance.
  .
  This package installs the library for Python 2.
 
 Package: python3-pyarchappl
 Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description> (Python 3)
- <insert long description, indented with spaces>
+Description: Python interface for Archiver Appliance (Python 3)
+ Python interface for Archiver Appliance.
  .
  This package installs the library for Python 3.
