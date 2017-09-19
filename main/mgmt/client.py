@@ -8,6 +8,13 @@ URL_DEFAULT = 'http://127.0.0.1:17665/mgmt/bpl'
 
 
 class ArchiverMgmtClient(object):
+    """Management client for Archiver Appliance.
+
+    Parameters
+    ----------
+    url : str
+        Base url of BPL, default is `http://127.0.0.1:17665/mgmt/bpl`.
+    """
     def __init__(self, url=None):
         self.url = url
 
@@ -25,21 +32,25 @@ class ArchiverMgmtClient(object):
             self._url = url
 
     def get_appliance_info(self):
-        """
+        """Get the appliance information for the specified appliance.
         """
         url = self._url + '/getApplianceInfo'
         return requests.get(url).json()
     
     def get_all_pvs(self, expanded=False, **kws):
-        """
+        """Get all the PVs in the cluster.
+
         Parameters
         ----------
-        expanded :
+        expanded : bool
+            If true, return PV with all fields.
 
         Keyword Arguments
         -----------------
-        pv :
-        limit :
+        pv : str
+            Only return PVs matched `pv` pattern.
+        limit : int
+            Length of returned list of PVs.
         """
         if expanded:
             url = self._url + '/getAllExpandedPVNames'
@@ -48,32 +59,56 @@ class ArchiverMgmtClient(object):
         return requests.get(url + _make_params(kws)).json()
 
     def get_pv_status(self, **kws):
+        """Get the status of a PV.
+        """
         url = self._url + '/getPVStatus' 
         return requests.get(url + _make_params(kws)).json()
 
     def get_pv_type_info(self, pv):
+        """Get the type info for a given PV.
+        
+        In the archiver appliance terminology, the *PVTypeInfo* contains the
+        various archiving parameters for a PV.
+        """
         url = self._url + '/getPVTypeInfo' 
         return requests.get(url + '?pv={}'.format(pv)).json()
 
     def archive_pv(self, pv, op=None, **kws):
-        """
+        """Archive operations for one or more PVs.
+
         Parameters
         ----------
-        pv :
+        pv : str or List(str)
+            Name of PVs (list) to be operated.
         op : str
-            'archive', 'pause', 'resume', 'abort', 'update'
+            Specific archive operation:
+            * 'archive' (default): start to archive.
+            * 'pause': pause archiving.
+            * 'resume': resume archiving.
+            * 'abort': abort arhiving.
+            * 'update': change archiving configuration.
 
         Keyword Arguments
         -----------------
-        archive:
-            samplingperiod,
-            samplingmethod,
-            controllingPV,
-            policy,
-            appliance,
-        update: change archiving parameter:
-            samplingmethod
-            samplingperiod
+        :archive:
+            samplingperiod:
+                The sampling period to be used. Optional, default value is
+                1.0 seconds.
+            samplingmethod:
+                The sampling method to be used. For now, this is one of SCAN
+                or MONITOR. Optional, default value is MONITOR.
+            controllingPV:
+                The controlling PV for coditional archiving. Optional;
+                if unspecified, we do not use conditional archiving.
+            policy:
+                Override the policy execution process and use this policy
+                instead. Optional; if unspecified, we go thru the normal
+                policy execution process.
+            appliance:
+                If specified (value is the identity of the appliance),
+                the sampling and archiving are done on the specified appliance.
+        :update:
+            samplingmethod, samplingperiod
         """
         kparams = {'pv': pv}
         if op is None:
@@ -91,10 +126,14 @@ class ArchiverMgmtClient(object):
         return requests.get(url + _make_params(kparams)).json()
 
     def get_stores_for_pv(self, pv):
+        """ Gets the names of the data stores for this PV.
+        """
         url = self._url + '/getStoresForPV' 
         return requests.get(url + '?pv={}'.format(pv)).json()
 
     def delete_pv(self, pv, delete_data=False):
+        """ Stop archiving the specified PV. The PV needs to be paused first.
+        """
         url = self._url + '/deletePV' 
         return requests.get(url + _make_params({'deleteData': delete_data, 'pv': pv})).json()
 

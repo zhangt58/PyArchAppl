@@ -8,12 +8,19 @@ import pandas as pd
 URL_DEFAULT = 'http://127.0.0.1:17665'
 
 class ArchiverDataClient(object):
+    """Client for data retrieval.
+
+    Parameters
+    ----------
+    url : str
+        Base url for data retrieval API, default is 'http://127.0.0.1:17665'.
+    """
     def __init__(self, url=None):
         self._url_config = [URL_DEFAULT, '/retrieval/data/getData.', 'json']
 
     @property
     def format(self):
-        """CSV, MAT, SVG, JSON, TXT, RAW
+        """CSV, MAT, SVG, JSON, TXT, RAW.
         """
         return self._url_config[2]
 
@@ -33,11 +40,19 @@ class ArchiverDataClient(object):
             self._url_config[0] = url
         
     def get_data(self, pv, **kws):
-        """
+        """Retrieve data from Archive Appliance, return as `pandas.DataFrame`.
+
+        Parameters
+        ----------
+        pv : str
+            PV name.
+
         Keyword Arguments
         -----------------
-        ifrom:
-        to
+        ifrom : str
+            Starting date time to retrieve.
+        to : str
+            End data time.
         """
         ifrom = kws.get('ifrom', None)
         ito = kws.get('to', None)
