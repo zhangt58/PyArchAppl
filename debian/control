@@ -18,7 +18,8 @@ Architecture: all
 Depends: ${python:Depends}, ${misc:Depends},
          python-requests, python-pandas
 Description: Python interface for Archiver Appliance (Python 2)
- Python interface for Archiver Appliance.
+ Python interface for Archiver Appliance, new Archiver developed by SLAC.
+ This package wraps Python interface for the Python 2 software environment.
  .
  This package installs the library for Python 2.
 
@@ -27,6 +28,7 @@ Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends},
          python3-requests, python3-pandas
 Description: Python interface for Archiver Appliance (Python 3)
- Python interface for Archiver Appliance.
+ Python interface for Archiver Appliance, new Archiver developed by SLAC.
+ This package wraps Python interface for the Python 3 software environment.
  .
  This package installs the library for Python 3.
