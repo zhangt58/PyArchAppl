@@ -4,7 +4,7 @@ import requests
 import json
 
 
-URL_DEFAULT = 'http://127.0.0.1:17665/mgmt/bpl'
+URL_DEFAULT = 'http://127.0.0.1:17665'
 
 
 class ArchiverMgmtClient(object):
@@ -13,28 +13,29 @@ class ArchiverMgmtClient(object):
     Parameters
     ----------
     url : str
-        Base url of BPL, default is `http://127.0.0.1:17665/mgmt/bpl`.
+        Base url of BPL, default is `http://127.0.0.1:17665`,
     """
     def __init__(self, url=None):
+        self._url_config = [URL_DEFAULT, '/mgmt/bpl']
         self.url = url
 
     @property
     def url(self):
-        """Base url of archiver appliance (management)
+        """URL of archiver appliance (management).
         """
-        return self._url
+        return ''.join(self._url_config)
     
     @url.setter
     def url(self, url):
         if url is None:
-            self._url = URL_DEFAULT
+            self._url_config[0] = URL_DEFAULT
         else:
-            self._url = url
+            self._url_config[0] = url
 
     def get_appliance_info(self):
         """Get the appliance information for the specified appliance.
         """
-        url = self._url + '/getApplianceInfo'
+        url = self.url + '/getApplianceInfo'
         return requests.get(url).json()
     
     def get_all_pvs(self, expanded=False, **kws):
@@ -53,15 +54,15 @@ class ArchiverMgmtClient(object):
             Length of returned list of PVs.
         """
         if expanded:
-            url = self._url + '/getAllExpandedPVNames'
+            url = self.url + '/getAllExpandedPVNames'
         else:
-            url = self._url + '/getAllPVs' 
+            url = self.url + '/getAllPVs' 
         return requests.get(url + _make_params(kws)).json()
 
     def get_pv_status(self, **kws):
         """Get the status of a PV.
         """
-        url = self._url + '/getPVStatus' 
+        url = self.url + '/getPVStatus' 
         return requests.get(url + _make_params(kws)).json()
 
     def get_pv_type_info(self, pv):
@@ -70,7 +71,7 @@ class ArchiverMgmtClient(object):
         In the archiver appliance terminology, the *PVTypeInfo* contains the
         various archiving parameters for a PV.
         """
-        url = self._url + '/getPVTypeInfo' 
+        url = self.url + '/getPVTypeInfo' 
         return requests.get(url + '?pv={}'.format(pv)).json()
 
     def archive_pv(self, pv, op=None, **kws):
@@ -112,33 +113,33 @@ class ArchiverMgmtClient(object):
         """
         kparams = {'pv': pv}
         if op is None:
-            url = self._url + '/archivePV'
+            url = self.url + '/archivePV'
             kparams.update(kws)
         elif op == 'pause':
-            url = self._url + '/pauseArchivingPV'
+            url = self.url + '/pauseArchivingPV'
         elif op == 'resume':
-            url = self._url + '/resumeArchivingPV'
+            url = self.url + '/resumeArchivingPV'
         elif op == 'abort':
-            url = self._url + '/abortArchivingPV'
+            url = self.url + '/abortArchivingPV'
         elif op == 'update':
-            url = self._url + '/changeArchivalParameters'
+            url = self.url + '/changeArchivalParameters'
             kparams.update(kws)
         return requests.get(url + _make_params(kparams)).json()
 
     def get_stores_for_pv(self, pv):
         """ Gets the names of the data stores for this PV.
         """
-        url = self._url + '/getStoresForPV' 
+        url = self.url + '/getStoresForPV' 
         return requests.get(url + '?pv={}'.format(pv)).json()
 
     def delete_pv(self, pv, delete_data=False):
         """ Stop archiving the specified PV. The PV needs to be paused first.
         """
-        url = self._url + '/deletePV' 
+        url = self.url + '/deletePV' 
         return requests.get(url + _make_params({'deleteData': delete_data, 'pv': pv})).json()
 
     def __repr__(self):
-        return "[Admin Client] Archiver Appliance on: {url}".format(url=self._url)
+        return "[Admin Client] Archiver Appliance on: {url}".format(url=self.url)
 
 
 def _make_params(d):
@@ -152,7 +153,7 @@ def _make_params(d):
 
 if __name__ == '__main__':
     a = ArchiverMgmtClient()
-    assert str(a) == 'Archiver Appliance on: http://127.0.0.1:17665/mgmt/bpl'
+    assert str(a) == '[Admin Client] Archiver Appliance on: http://127.0.0.1:17665/mgmt/bpl'
     # URL
     assert a.url == 'http://127.0.0.1:17665/mgmt/bpl'
     
