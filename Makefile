@@ -5,7 +5,7 @@ build:
 	python setup.py bdist_wheel
 
 deploy:
-	sudo pip install dist/pyarchappl-0.0.1-py2-none-any.whl --upgrade
+	sudo pip install dist/pyarchappl-0.2.0-py2-none-any.whl --upgrade
 
 uninstall:
 	sudo pip uninstall pyarchappl
