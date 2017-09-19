@@ -17,6 +17,7 @@ class ArchiverDataClient(object):
     """
     def __init__(self, url=None):
         self._url_config = [URL_DEFAULT, '/retrieval/data/getData.', 'json']
+        self.url = url
 
     @property
     def format(self):
