@@ -1,3 +1,11 @@
+pyarchappl (0.2.0-1) unstable; urgency=medium
+
+  * Add docstrings.
+  * Optimize import policy.
+  * Fix version number issue.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Tue, 19 Sep 2017 09:55:30 -0400
+
 pyarchappl (0.1.0-2) unstable; urgency=medium
 
   * Fix runtime dependences.
