@@ -1,3 +1,9 @@
+pyarchappl (0.2.0-2) unstable; urgency=medium
+
+  * Update extended description.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Tue, 19 Sep 2017 10:03:41 -0400
+
 pyarchappl (0.2.0-1) unstable; urgency=medium
 
   * Add docstrings.
