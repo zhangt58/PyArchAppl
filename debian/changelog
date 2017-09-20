@@ -1,3 +1,10 @@
+pyarchappl (0.2.2-1) unstable; urgency=medium
+
+  * Add guideline in README.
+  * Clean up source branch.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Wed, 20 Sep 2017 09:21:27 -0400
+
 pyarchappl (0.2.1-1) unstable; urgency=medium
 
   * Changed URL setting policy.
