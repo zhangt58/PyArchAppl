@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
         name='pyarchappl',
-        version='0.2.1',
+        version='0.2.2',
         description='Python interface to Archiver Appliance',
         author='Tong Zhang',
         author_email='zhangt@frib.msu.edu',
