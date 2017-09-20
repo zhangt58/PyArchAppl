@@ -2,6 +2,10 @@
 
 Python interface for [Archiver Appliance](https://slacmshankar.github.io/epicsarchiver_docs/index.html).
 
+# Installation
+
+See [INSTALL.md](/INSTALL.md)
+
 # How to test & develop
 
 ## [Optional] Set up Archiver Appliance testing environment
