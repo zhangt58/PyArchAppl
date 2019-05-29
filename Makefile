@@ -1,11 +1,13 @@
+redeploy: clean build deploy
+
 clean:
 	/bin/rm -rf dist build
 
 build:
-	python setup.py bdist_wheel
+	python3 setup.py bdist_wheel
 
 deploy:
-	sudo pip install dist/pyarchappl-0.2.0-py2-none-any.whl --upgrade
+	pip3 install dist/pyarchappl-0.2.2-py2.py3-none-any.whl --upgrade --user
 
 uninstall:
 	sudo pip uninstall pyarchappl
