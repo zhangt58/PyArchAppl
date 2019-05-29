@@ -2,6 +2,7 @@
 
 import requests
 import json
+from simplejson import JSONDecodeError
 import pandas as pd
 
 
@@ -50,7 +51,14 @@ class ArchiverDataClient(object):
               + '?' + '&'.join(p)
         r = requests.post(url, data=json.dumps(pvs),
                           headers=JSON_HEADERS)
-        return r.json()
+        try:
+            ret = r.json()
+        except JSONDecodeError:
+            ret = None
+        finally:
+            return ret
+            
+
 
     def get_data(self, pv, **kws):
         """Retrieve data from Archive Appliance, return as `pandas.DataFrame`.
