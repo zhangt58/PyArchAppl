@@ -6,6 +6,7 @@ import pandas as pd
 
 
 URL_DEFAULT = 'http://127.0.0.1:17665'
+JSON_HEADERS = {"Content-Type": "application/json"}
 
 class ArchiverDataClient(object):
     """Client for data retrieval.
@@ -40,6 +41,17 @@ class ArchiverDataClient(object):
         else:
             self._url_config[0] = url
         
+    def get_data_at_time(self, pvs, ts):
+        """Get data at timestampe defined by *ts* for list of PVs defined
+        by *pvs*.
+        """
+        p = ['at={}'.format(ts)]
+        url = self.url.rsplit('/', 1)[0] + '/getDataAtTime' \
+              + '?' + '&'.join(p)
+        r = requests.post(url, data=json.dumps(pvs),
+                          headers=JSON_HEADERS)
+        return r.json()
+
     def get_data(self, pv, **kws):
         """Retrieve data from Archive Appliance, return as `pandas.DataFrame`.
 
@@ -62,6 +74,7 @@ class ArchiverDataClient(object):
             p.append('from={}'.format(ifrom))
         if ito is not None:
             p.append('to={}'.format(ito))
+
         url = self.url + '?' + '&'.join(p)
 
         r = requests.get(url)
