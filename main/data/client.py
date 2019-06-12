@@ -41,7 +41,7 @@ class ArchiverDataClient(object):
             self._url_config[0] = URL_DEFAULT
         else:
             self._url_config[0] = url
-        
+
     def get_data_at_time(self, pvs, ts):
         """Get data at timestampe defined by *ts* for list of PVs defined
         by *pvs*.
@@ -57,8 +57,6 @@ class ArchiverDataClient(object):
             ret = None
         finally:
             return ret
-            
-
 
     def get_data(self, pv, **kws):
         """Retrieve data from Archive Appliance, return as `pandas.DataFrame`.
@@ -92,7 +90,7 @@ class ArchiverDataClient(object):
             data = r.text
 
         return _normalize(data)
-    
+
     def __repr__(self):
         return "[Data Client] Archiver Appliance on: {url}".format(url=self.url)
 
@@ -104,7 +102,7 @@ def _normalize(data):
     val_ks = [k for k in d_data[0] if k not in ('secs', 'nanos')]
 
     df = pd.DataFrame()
-    
+
     df['ts'] = [d['secs'] + d['nanos']/1e9 for d in d_data]
     df = df.set_index('ts')
     for k in val_ks:
