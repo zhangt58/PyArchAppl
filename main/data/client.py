@@ -103,8 +103,8 @@ def _normalize(data):
 
     df = pd.DataFrame()
 
-    df['ts'] = [d['secs'] + d['nanos']/1e9 for d in d_data]
-    df = df.set_index('ts')
+    df['Timestamp'] = [d['secs'] + d['nanos']/1e9 for d in d_data]
+    df = df.set_index('Timestamp')
     for k in val_ks:
         df[k] = [d[k] for d in d_data]
 
