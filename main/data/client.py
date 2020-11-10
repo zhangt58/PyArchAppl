@@ -68,13 +68,13 @@ class ArchiverDataClient(object):
 
         Keyword Arguments
         -----------------
-        ifrom : str
+        ts_from : str
             Starting date time to retrieve.
-        to : str
+        ts_to : str
             End data time.
         """
-        ifrom = kws.get('ifrom', None)
-        ito = kws.get('to', None)
+        ifrom = kws.get('ts_from', None)
+        ito = kws.get('ts_to', None)
         p = ['pv={}'.format(pv)]
         if ifrom is not None:
             p.append('from={}'.format(ifrom))
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     #print(a.url)
 
     data = a.get_data(pv='TST:gaussianNoise')
-    #print(a.get_data(pv='TST:gaussianNoise', ifrom='a', to='d'))
+    #print(a.get_data(pv='TST:gaussianNoise', ts_from='a', ts_to='d'))
     import matplotlib.pyplot as plt
     data.plot()
     plt.show()
