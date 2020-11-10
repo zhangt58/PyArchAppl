@@ -27,7 +27,7 @@ data = client.get_data(pv)
 data.plot()
 plt.show()
 ```
-![](contrib/data_plot1.png?raw=true)
+![](tests/data_plot1.png?raw=true)
 
 ### Data (PV) Management Client
 ```Python
