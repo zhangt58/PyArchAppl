@@ -4,7 +4,7 @@ Python interface for [Archiver Appliance](https://slacmshankar.github.io/epicsar
 
 # Installation
 
-See [INSTALL.md](/INSTALL.md)
+See [INSTALL.md](INSTALL.md)
 
 # How to test & develop
 
@@ -27,7 +27,7 @@ data = client.get_data(pv)
 data.plot()
 plt.show()
 ```
-![](/contrib/data_plot1.png?raw=true)
+![](contrib/data_plot1.png?raw=true)
 
 ### Data (PV) Management Client
 ```Python
