@@ -95,21 +95,46 @@ class ArchiverDataClient(object):
         return "[Data Client] Archiver Appliance on: {url}".format(url=self.url)
 
 
-def _normalize(data):
+def normalize(data, tz='UTC'):
     """Normalize data as pandas.DataFrame.
+
+    Parameters
+    ----------
+    data : list
+        List of dict from data client.
+    tz : str
+        String of timezone, e.g. 'US/Eastern', see also: `pytz.all_timezones`.
+
+    Returns
+    -------
+    r : DataFrame
+        Pandas dataframe object.
     """
-    d_data = data[0]['data']
-    val_ks = [k for k in d_data[0] if k not in ('secs', 'nanos')]
+    meta = data[0]['meta']
+    payloads = data[0]['data']
+
+    payload0 = payloads[0]
+    other_val_keys = [k for k in payload0 if k not in ('secs', 'nanos')]
+    ts_list = []
+    val_list = []
+    other_val_dict = dict()
+
+    for d in payloads:
+        ts_list.append(d['secs'] + d['nanos'] / 1.0e9)
+        for k in other_val_keys:
+            other_val_dict.setdefault(k, []).append(d[k])
 
     df = pd.DataFrame()
+    df['timestamp'] = ts_list
+    df.set_index('timestamp', inplace=True)
+    for k in other_val_keys:
+        df[k] = other_val_dict[k]
 
-    df['Timestamp'] = [d['secs'] + d['nanos']/1e9 for d in d_data]
-    df = df.set_index('Timestamp')
-    for k in val_ks:
-        df[k] = [d[k] for d in d_data]
-
-    idx = pd.to_datetime(df.index, unit='s').tz_localize('UTC').tz_convert('US/Eastern')
-    df.index = idx
+    idx_utc = pd.to_datetime(df.index, unit='s').tz_localize('UTC')
+    if tz != 'UTC':
+        df.index = idx_utc.tz_convert(tz)
+    else:
+        df.index = idx_utc
     return df
 
 
