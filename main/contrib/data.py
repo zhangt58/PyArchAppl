@@ -23,15 +23,17 @@ def get_dataset1(pv_list, ts_from, ts_to, **kws):
     resample = kws.pop('resample', None)
     echo = kws.pop('echo', False)
     t0 = time.time()
-    data = None
+    df_list = []
     for pv in pv_list:
-        _con, data = _update_ds(data, pv, ts_from, ts_to, client=client)
-        if not _con:
+        data_ = get_data(pv, ts_from, ts_to, client=client)
+        if data_ is None:
             if echo:
                 print(f"Skip {pv}, no data to fetch.")
             continue
+        df_list.append(data_)
         if echo:
             print(f"Fetched data of {pv}.")
+    data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
     if resample is not None:
         data = data.resample(resample).ffill()
@@ -46,17 +48,19 @@ def get_dataset(element_list, field_list, ts_from, ts_to, **kws):
     resample = kws.pop('resample', None)
     echo = kws.pop('echo', False)
     t0 = time.time()
-    data = None
+    df_list = []
     for i in element_list:
         for field in field_list:
             pv = i.pv(field=field)[0]
-            _con, data = _update_ds(data, pv, ts_from, ts_to, client=client)
-            if not _con:
+            data_ = get_data(pv, ts_from, ts_to, client=client)
+            if data_ is None:
                 if echo:
                     print(f"Skip {i.name}[{field}], no data to fetch.")
                 continue
+            df_list.append(data_)
             if echo:
                 print(f"Fetched data of {i.name}[{field}].")
+    data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
     if resample is not None:
         data = data.resample(resample).ffill()
@@ -64,7 +68,6 @@ def get_dataset(element_list, field_list, ts_from, ts_to, **kws):
     if echo:
         print(f"Data fetching is done, cost {time.time() - t0} seconds.")
     return data
-
 
 def _update_ds(data, pv, ts_from, ts_to, client=None):
     data_ = get_data(pv, ts_from, ts_to, client)
