@@ -5,6 +5,7 @@ import json
 from simplejson import JSONDecodeError
 import pandas as pd
 
+PAYLOAD_KEYS = ('val', 'status', 'severity')
 
 URL_DEFAULT = 'http://127.0.0.1:17665'
 JSON_HEADERS = {"Content-Type": "application/json"}
@@ -86,10 +87,11 @@ class ArchiverDataClient(object):
         r = requests.get(url)
         if self.format == 'json':
             data = r.json()
+            return normalize(data)
         else:
             data = r.text
+            return data
 
-        return _normalize(data)
 
     def __repr__(self):
         return "[Data Client] Archiver Appliance on: {url}".format(url=self.url)
@@ -114,7 +116,7 @@ def normalize(data, tz='UTC'):
     payloads = data[0]['data']
 
     payload0 = payloads[0]
-    other_val_keys = [k for k in payload0 if k not in ('secs', 'nanos')]
+    other_val_keys = PAYLOAD_KEYS #[k for k in payload0 if k not in ('secs', 'nanos')]
     ts_list = []
     val_list = []
     other_val_dict = dict()
