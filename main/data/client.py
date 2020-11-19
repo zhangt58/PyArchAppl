@@ -4,6 +4,7 @@ import requests
 import json
 from simplejson import JSONDecodeError
 import pandas as pd
+from .utils import LOCAL_ZONE_NAME
 
 PAYLOAD_KEYS = ('val', 'status', 'severity')
 
@@ -73,9 +74,17 @@ class ArchiverDataClient(object):
             Starting date time to retrieve.
         ts_to : str
             End data time.
+        tz : str
+            Name of timezone for the returned index, default is local zone.
+
+        Returns
+        -------
+        r : DataFrame
+            Dataframe with the index of timestamp.
         """
         ifrom = kws.get('ts_from', None)
         ito = kws.get('ts_to', None)
+        tz = kws.get('tz', LOCAL_ZONE_NAME)
         p = ['pv={}'.format(pv)]
         if ifrom is not None:
             p.append('from={}'.format(ifrom))
@@ -91,11 +100,10 @@ class ArchiverDataClient(object):
             except JSONDecodeError:
                 return None
             else:
-                return normalize(data)
+                return normalize(data, tz)
         else:
             data = r.text
             return data
-
 
     def __repr__(self):
         return "[Data Client] Archiver Appliance on: {url}".format(url=self.url)
@@ -126,7 +134,7 @@ def normalize(data, tz='UTC'):
     other_val_dict = dict()
 
     for d in payloads:
-        ts_list.append(d['secs'] + d['nanos'] / 1.0e9)
+        ts_list.append(int((d['secs'] + d['nanos']/1e9)*1e3))
         for k in other_val_keys:
             other_val_dict.setdefault(k, []).append(d[k])
 
@@ -136,7 +144,7 @@ def normalize(data, tz='UTC'):
     for k in other_val_keys:
         df[k] = other_val_dict[k]
 
-    idx_utc = pd.to_datetime(df.index, unit='s').tz_localize('UTC')
+    idx_utc = pd.to_datetime(df.index, unit='ms').tz_localize('UTC')
     if tz != 'UTC':
         df.index = idx_utc.tz_convert(tz)
     else:
