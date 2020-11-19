@@ -8,7 +8,9 @@ from .utils import is_dst
 FRIBArchiverDataClient = ArchiverDataClient(
     "http://epicsarchiver0.ftc:17668")
 
-__all__ = ["ArchiverDataClient", "FRIBArchiverDataClient",
-           "iso_to_epoch", "epoch_to_iso", "parse_dt",
-           "datetime_with_timezone",
-           "is_dst"]
+__all__ = [
+    "iso_to_epoch", "epoch_to_iso",
+    "parse_dt",
+    "datetime_with_timezone",
+    "is_dst"
+]
