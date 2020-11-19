@@ -1,4 +1,5 @@
 from archappl.client import *
+from archappl.data import *
 
 
 __version__ = '0.3.0'
