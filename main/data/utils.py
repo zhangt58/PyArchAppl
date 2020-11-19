@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple
 from datetime import datetime
 import dateutil.relativedelta as relativedelta
 import tzlocal
@@ -8,6 +9,61 @@ import pytz
 
 LOCAL_ZONE = tzlocal.get_localzone()
 LOCAL_ZONE_NAME = LOCAL_ZONE.zone # America/New_York
+
+DatetimeTuple = namedtuple('DatetimeTuple',
+        ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
+        defaults=[1970, 1, 1, 0, 0, 0, 0])
+
+
+def standardize_datetime(date_time, time_zone=None):
+    """Standardize datetime (object or string) to iso8601 UTC string format.
+
+    Parameters
+    ----------
+    date_time : tuple of str or datetime
+        String representation of datetime, with a tuple of (year, month,
+        day, hour, minute, second, millisecond), define timezone by
+        *timezone* argument. Or define with datetime object, if tzinfo is defined,
+        ignore *time_zone*.
+    time_zone : str
+        Name of time zone, default is local zone, e.g. America/New_York,
+        see also: pytz.all_timezones.
+
+    Returns
+    -------
+    r : str
+        ISO8601 UTC string represented datetime, e.g.
+        '2020-11-19T12:28:30.000Z'.
+
+    Examples
+    --------
+    >>> from datetime import datetime
+    >>> t0_dst = datetime(2016, 11, 5, 23, 0, 0, 0)
+    >>> t0 = datetime_with_timezone(t0_dst)
+    >>> print(standardize_datetime(t0))
+    2016-11-06T03:00:00.000Z
+    >>> t_tuple = (2016, 11, 5, 23)
+    >>> print(standardize_datetime(t_tuple))
+    2016-11-06T03:00:00.000Z
+    """
+    if time_zone is None:
+        _tz = LOCAL_ZONE
+    else:
+        _tz = pytz.timezone(time_zone)
+
+    if isinstance(date_time, tuple):
+        dt_tuple = DatetimeTuple(*date_time)
+        _t = datetime(dt_tuple.year, dt_tuple.month, dt_tuple.day,
+                      dt_tuple.hour, dt_tuple.minute, dt_tuple.second,
+                      dt_tuple.millisecond * 1000)
+        t = datetime_with_timezone(_tz.localize(_t), 'UTC')
+    else: # datetime
+        if date_time.tzinfo is not None:
+            t = date_time.astimezone(pytz.timezone('UTC'))
+        else:
+            _t = datetime_with_timezone(date_time, _tz.zone)
+            t = datetime_with_timezone(_t, 'UTC')
+    return f"{t.year:4d}-{t.month:02d}-{t.day:02d}T{t.hour:02d}:{t.minute:02d}:{t.second:02d}.{int(t.microsecond/1000.0):03d}Z"
 
 
 def iso_to_epoch(s):
