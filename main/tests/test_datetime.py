@@ -5,6 +5,7 @@ import pytz
 from archappl.data import is_dst
 from archappl.data import parse_dt
 from archappl.data import datetime_with_timezone
+from archappl.data.utils import standardize_datetime
 from archappl.data.utils import LOCAL_ZONE_NAME
 
 
@@ -45,6 +46,7 @@ def test_func_is_dst():
     assert is_dst(T0_DST) == True
     assert is_dst(T1_EST) == False
 
+
 def test_func_parse_dt1():
     """Test `parse_dt()`.
     """
@@ -81,3 +83,17 @@ def test_func_parse_dt2():
     assert (datetime_with_timezone(tt0_after_four_hrs, time_zone='UTC') -
             datetime_with_timezone(tt0, time_zone='UTC')).total_seconds() \
             == 4 * 3600
+
+
+def test_standardize_datetime():
+    """Test ISO8601 datetime format.
+    """
+    t0 = datetime_with_timezone(T0_DST)
+    t0_as_utc = datetime_with_timezone(t0, 'UTC')
+    datetimetuple1 = (2016, 11, 5, 23)  # 2016-11-05 23:00:00
+
+    d_str1 = standardize_datetime(datetimetuple1)
+    assert d_str1 == f"{t0_as_utc.year:4d}-{t0_as_utc.month:02d}-{t0_as_utc.day:02d}T{t0_as_utc.hour:02d}:{t0_as_utc.minute:02d}:{t0_as_utc.second:02d}.{int(t0_as_utc.microsecond/1000):03d}Z"
+
+    assert d_str1 == standardize_datetime(T0_DST)
+    assert d_str1 == standardize_datetime(t0)
