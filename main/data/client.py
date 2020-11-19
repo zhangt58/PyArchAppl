@@ -86,8 +86,12 @@ class ArchiverDataClient(object):
 
         r = requests.get(url)
         if self.format == 'json':
-            data = r.json()
-            return normalize(data)
+            try:
+                data = r.json()
+            except JSONDecodeError:
+                return None
+            else:
+                return normalize(data)
         else:
             data = r.text
             return data
