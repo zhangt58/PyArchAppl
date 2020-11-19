@@ -4,13 +4,16 @@ from .utils import epoch_to_iso
 from .utils import parse_dt
 from .utils import datetime_with_timezone
 from .utils import is_dst
+from .utils import standardize_datetime
 
 FRIBArchiverDataClient = ArchiverDataClient(
     "http://epicsarchiver0.ftc:17668")
+
 
 __all__ = [
     "iso_to_epoch", "epoch_to_iso",
     "parse_dt",
     "datetime_with_timezone",
-    "is_dst"
+    "is_dst",
+    "standardize_datetime",
 ]
