@@ -6,6 +6,16 @@ from .utils import datetime_with_timezone
 from .utils import is_dst
 from .utils import standardize_datetime
 
+def dformat(*args, **kws):
+    """Return ISO8601 format of date time.
+
+    Input up to 7 arguments as year, month, day, hour, minute, second,
+    millisecond, it is recommended always input year, month, day, hour,
+    minute, second and millisecond as 0 if not input.
+    """
+    return standardize_datetime(args, **kws)
+
+
 FRIBArchiverDataClient = ArchiverDataClient(
     "http://epicsarchiver0.ftc:17668")
 
@@ -16,4 +26,5 @@ __all__ = [
     "datetime_with_timezone",
     "is_dst",
     "standardize_datetime",
+    "dformat"
 ]
