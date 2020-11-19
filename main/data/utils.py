@@ -4,9 +4,11 @@
 from collections import namedtuple
 from datetime import datetime
 import dateutil.relativedelta as relativedelta
-import tzlocal
 import pytz
+import time
+import tzlocal
 
+TS_FMT = "%Y-%m-%dT%H:%M:%S.%f"
 LOCAL_ZONE = tzlocal.get_localzone()
 LOCAL_ZONE_NAME = LOCAL_ZONE.zone # America/New_York
 
@@ -291,6 +293,34 @@ def parse_dt(dt, ref_datetime=None, epoch=None):
     else:
         r = _datetime
     return datetime_with_timezone(r)
+
+
+# see phantasy_ui.printlog
+def printlog(*msg, ctime=None, fmt=None):
+    """Print message(s) with current timestamp or defined by *ctime*.
+
+    Parameters
+    ----------
+    msg :
+        Messages.
+    ctime : float
+        Timestamp.
+    fmt : str
+        Format for strftime(), default is "%Y-%m-%dT%H:%M:%S.%f".
+
+    Examples
+    --------
+    >>> printlog('a', 'b', 'c')
+    [2020-01-14T11:22:10.475744] a, b, c
+    >>> printlog(1, 2, 3)
+    [2020-01-14T11:22:57.500679] a, b
+    >>> printlog("This is a log message.")
+    [2020-01-14T11:23:40.389471] This is a log message.
+    """
+    ts = time.time() if ctime is None else ctime
+    f = TS_FMT if fmt is None else fmt
+    print("[{}] {}".format(
+        datetime.fromtimestamp(ts).strftime(f), ', '.join((str(i) for i in msg))))
 
 
 if __name__ == "__main__":

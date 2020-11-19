@@ -5,6 +5,7 @@ from .utils import parse_dt
 from .utils import datetime_with_timezone
 from .utils import is_dst
 from .utils import standardize_datetime
+from .utils import printlog
 
 def dformat(*args, **kws):
     """Return ISO8601 format of date time.
@@ -26,5 +27,6 @@ __all__ = [
     "datetime_with_timezone",
     "is_dst",
     "standardize_datetime",
-    "dformat"
+    "dformat",
+    "printlog"
 ]
