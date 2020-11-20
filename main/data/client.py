@@ -11,6 +11,7 @@ PAYLOAD_KEYS = ('val', 'status', 'severity')
 URL_DEFAULT = 'http://127.0.0.1:17665'
 JSON_HEADERS = {"Content-Type": "application/json"}
 
+
 class ArchiverDataClient(object):
     """Client for data retrieval.
 
@@ -44,14 +45,14 @@ class ArchiverDataClient(object):
         else:
             self._url_config[0] = url
 
-    def get_data_at_time(self, pvs, ts):
-        """Get data at timestampe defined by *ts* for list of PVs defined
-        by *pvs*.
+    def get_data_at_time(self, pv_list, at_time):
+        """Get data at timestampe defined by *at_time* for list of PVs defined
+        by *pv_list*.
         """
-        p = ['at={}'.format(ts)]
+        p = ['at={}'.format(at_time)]
         url = self.url.rsplit('/', 1)[0] + '/getDataAtTime' \
               + '?' + '&'.join(p)
-        r = requests.post(url, data=json.dumps(pvs),
+        r = requests.post(url, data=json.dumps(pv_list),
                           headers=JSON_HEADERS)
         try:
             ret = r.json()
@@ -70,10 +71,10 @@ class ArchiverDataClient(object):
 
         Keyword Arguments
         -----------------
-        ts_from : str
-            Starting date time to retrieve.
-        ts_to : str
-            End data time.
+        from_time : str
+            A string of start time of the data in ISO8601 format.
+        to_time : str
+            A string of end time of the data in ISO8601 format.
         tz : str
             Name of timezone for the returned index, default is local zone.
 
@@ -82,8 +83,8 @@ class ArchiverDataClient(object):
         r : DataFrame
             Dataframe with the index of timestamp.
         """
-        ifrom = kws.get('ts_from', None)
-        ito = kws.get('ts_to', None)
+        ifrom = kws.get('from_time', None)
+        ito = kws.get('to_time', None)
         tz = kws.get('tz', LOCAL_ZONE_NAME)
         p = ['pv={}'.format(pv)]
         if ifrom is not None:
