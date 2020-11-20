@@ -1,3 +1,5 @@
 from .data import get_data
-from .data import get_dataset
-from .data import get_dataset1
+from .data import get_dataset_with_devices
+from .data import get_dataset_with_pvs
+
+get_dataset = get_dataset_with_devices
