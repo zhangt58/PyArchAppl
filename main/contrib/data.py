@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-
-from archappl.client import FRIBArchiverDataClient
 import time
-from archappl import tqdm
+import pandas as pd
+from archappl.client import FRIBArchiverDataClient
+from archappl.data.utils import LOCAL_ZONE_NAME
 from archappl import printlog
+from archappl import tqdm
 
 
 def _get_data(pv, from_time, to_time, client=None):
@@ -17,6 +18,15 @@ def _get_data(pv, from_time, to_time, client=None):
         return None
     data.drop(columns=['severity', 'status'], inplace=True)
     data.rename(columns={'val': pv}, inplace=True)
+    return data
+
+
+def _get_data_at_time(pv_list, at_time, client=None):
+    if client is None:
+        client = FRIBArchiverDataClient
+    data = client.get_data_at_time(pv_list, at_time)
+    if data == {} or data is None:
+        return None
     return data
 
 
@@ -174,9 +184,8 @@ def get_dataset_at_time_with_pvs(pv_list, at_time, **kws):
     -----------------
     client : ArchiverDataClient
         ArchiverDataClient instance, default is FRIBArchiverDataClient.
-    verbose : int
-        Verbosity level of the log output, default is 0, no output, 1, output progress, 2 output
-        progress with description.
+    tz : str
+        Name of timezone for the returned index, default is local zone.
 
     Returns
     -------
@@ -184,3 +193,59 @@ def get_dataset_at_time_with_pvs(pv_list, at_time, **kws):
         Pandas dataframe.
     """
     client = kws.pop('client', None)
+    tz = kws.pop('tz', LOCAL_ZONE_NAME)
+    data_ = _get_data_at_time(pv_list, at_time, client)
+    return _to_df(data_, tz=tz, **kws)
+
+
+def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
+    """Pull data from Archiver Appliance, with a given list of devices and dynamic fields at a
+    specified time.
+
+    Parameters
+    ----------
+    element_list : list
+        A list of high-level device element objects.
+    field_list : list
+        A list of field names should applied to all elements, otherwise skip invalid field which
+        does not belong to some element.
+    at_time : str
+        A string of time of the data in ISO8601 format.
+
+    Keyword Arguments
+    -----------------
+    client : ArchiverDataClient
+        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+    handle : str
+        PV handle for field list, by default is 'readback', other options: 'setpoint'.
+    tz : str
+        Name of timezone for the returned index, default is local zone.
+
+    Returns
+    -------
+    r : dataframe
+        Pandas dataframe.
+    """
+    handle = kws.pop('handle', 'readback')
+    pv_list = [i.pv(field=f, handle=handle)[0] for i in element_list
+                for f in field_list if i.pv(field=f, handle=handle) != []]
+    client = kws.pop('client', None)
+    tz = kws.pop('tz', LOCAL_ZONE_NAME)
+    data_ = _get_data_at_time(pv_list, at_time, client)
+    df = _to_df(data_, tz=tz, **kws)
+    return df
+
+
+def _to_df(dat, tz='UTC'):
+    # dataframrize dat (dict of {pv:{payload}}) from get_data_at_time().
+    df = pd.DataFrame(columns=['PV', 'val', 'status', 'severity'])
+    ms_list = []
+    for i, (k, v) in enumerate(dat.items()):
+        ms_list.append(int((v['secs'] + v['nanos'] / 1e9) * 1e3))
+        df.loc[i] = [k, v['val'], v['status'], v['severity']]
+    idx_utc = pd.to_datetime(ms_list, unit='ms').tz_localize('UTC')
+    if tz != 'UTC':
+        df['time'] = idx_utc.tz_convert(tz)
+    else:
+        df['time'] = idx_utc
+    return df
