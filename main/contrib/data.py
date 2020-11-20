@@ -7,12 +7,12 @@ from archappl import tqdm
 from archappl import printlog
 
 
-def get_data(pv, ts_from, ts_to, client=None):
+def _get_data(pv, from_time, to_time, client=None):
     if client is None:
         client = FRIBArchiverDataClient
     data = client.get_data(pv,
-                           ts_from=ts_from,   #'2020-10-09T12:00:00.000000-05:00'
-                           ts_to=ts_to)       #'2020-10-09T12:20:00.000000-05:00'
+                           from_time=from_time,
+                           to_time=to_time)
     if len(data.iloc[:, 0]) == 1:
         return None
     data.drop(columns=['severity', 'status'], inplace=True)
@@ -78,7 +78,7 @@ def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
     else:
         pbar = pv_list
     for pv in pbar:
-            data_ = get_data(pv, from_time, to_time, client=client)
+            data_ = _get_data(pv, from_time, to_time, client=client)
             if data_ is None:
                 if verbose > 1:
                     pbar.set_description(f"Skip {pv}")
@@ -159,3 +159,28 @@ def get_dataset_with_devices(element_list, field_list, from_time, to_time, **kws
                 for f in field_list if i.pv(field=f, handle=handle) != []]
     return get_dataset_with_pvs(pv_list, from_time, to_time, **kws)
 
+
+def get_dataset_at_time_with_pvs(pv_list, at_time, **kws):
+    """Pull data from Archiver Appliance, with a given list of PVs at a specified time.
+
+    Parameters
+    ----------
+    pv_list : list
+        A list of process variables.
+    at_time : str
+        A string of time of the data in ISO8601 format.
+
+    Keyword Arguments
+    -----------------
+    client : ArchiverDataClient
+        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+    verbose : int
+        Verbosity level of the log output, default is 0, no output, 1, output progress, 2 output
+        progress with description.
+
+    Returns
+    -------
+    r : dataframe
+        Pandas dataframe.
+    """
+    client = kws.pop('client', None)
