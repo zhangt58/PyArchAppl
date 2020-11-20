@@ -139,8 +139,8 @@ def normalize(data, tz='UTC'):
             other_val_dict.setdefault(k, []).append(d[k])
 
     df = pd.DataFrame()
-    df['timestamp'] = ts_list
-    df.set_index('timestamp', inplace=True)
+    df['time'] = ts_list
+    df.set_index('time', inplace=True)
     for k in other_val_keys:
         df[k] = other_val_dict[k]
 
