@@ -227,12 +227,120 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
         Pandas dataframe.
     """
     handle = kws.pop('handle', 'readback')
-    pv_list = [i.pv(field=f, handle=handle)[0] for i in element_list
-                for f in field_list if i.pv(field=f, handle=handle) != []]
+    all_pv_list = []
+    pv_list_per_element = []
+    field_list_per_element = []
+    elem_list = []
+
+    for i in element_list:
+        _pv_list = []
+        _field_list = []
+        for f in field_list:
+            if f not in i.fields:
+                continue
+            _field_list.append(f)
+            field_pv_list_ = i.pv(field=f, handle=handle)
+            _pv_list.append(field_pv_list_)
+            all_pv_list.extend(field_pv_list_)
+        if _field_list == []:
+            continue
+        elem_list.append(i)
+        pv_list_per_element.append(_pv_list)
+        field_list_per_element.append(_field_list)
+
     client = kws.pop('client', None)
     tz = kws.pop('tz', LOCAL_ZONE_NAME)
-    data_ = _get_data_at_time(pv_list, at_time, client)
-    df = _to_df(data_, tz=tz, **kws)
+    data_ = _get_data_at_time(all_pv_list, at_time, client)
+    pv_val_dict = {k: v['val'] for k, v in data_.items()}
+    fval_list = []  # list of element with field values
+    for elem_, pv_list_, field_list_  in zip(elem_list, pv_list_per_element, field_list_per_element):
+        ename = elem_.name
+        etype = elem_.family
+        epos = elem_.sb
+        for fname, ipv_tuple in zip(field_list_, pv_list_):
+            if ipv_tuple[0] not in data_:
+                continue
+            v = data_[ipv_tuple[0]]
+            ms = int((v['secs'] + v['nanos'] / 1e9) * 1e3)
+            vset = elem_.get_settings(fname, pv_val_dict)
+            fval_list.append((ename, fname, etype, epos, vset, ms))
+    df = _to_df_sm(fval_list, tz=tz, **kws)
+    return df
+
+
+def export_as_settings_manager_datafile(df, filepath, **kws):
+    """Export dataframe as the datafile for Settings Manager.
+
+    Parameters
+    ----------
+    df : dataframe
+        Data of device settings.
+    filepath : str
+        Full path of exported data file.
+
+    Keyword Arguments
+    -----------------
+    note : str
+        Note string.
+    tags : str
+        Tags string.
+    machine : str
+        Name of machine, default is 'FRIB'.
+    segment : str
+        Name of segment, default is 'LINAC'.
+    ion_name : str
+        Name of ion.
+    ion_mass : int
+        Ion mass.
+    ion_charge : int
+        Ion charge.
+
+    See Also
+    --------
+    get_dataset_at_time_with_devices, get_dataset_at_time
+
+    """
+    from getpass import getuser
+    from phantasy_apps.settings_manager import __version__
+    nrow = df.shape[0]
+    for k in ('Readback', 'Last Setpoint'):
+        df[k] = ['nan'] * nrow
+    df['Tolerance'] = [0.1] * nrow
+    df['Writable'] = ['True'] * nrow
+    _user = getuser()
+    _timestamp = df['time'].astype('int64').mean() / 1e9
+    _datetime = df['time'].mean().isoformat()
+    _note = kws.get('note', 'Retrieved from Archiver')
+    _tags = kws.get('tags', '')
+    _machine = kws.get('machine', 'FRIB')
+    _segment = kws.get('segment', 'LINAC')
+    _ion_name, _ion_num, _ion_mass, _ion_charge = '', '', '', ''
+
+    ks = ('timestamp', 'datetime', 'note', 'filepath', 'user',
+          'ion_name', 'ion_number', 'ion_mass', 'ion_charge',
+          'machine', 'segment', 'tags', 'app', 'version')
+    vs = (_timestamp, _datetime, _note, filepath, _user,
+          _ion_name, _ion_num, _ion_mass, _ion_charge,
+          _machine, _segment, _tags, 'Settings Manager', __version__)
+    df1 = df.drop(columns=['time'])
+    with open(filepath, 'w') as fp:
+        for k, v in zip(ks, vs):
+            fp.write(f"# {k}: {v}\n")
+        df1.to_csv(fp, index=False)
+
+
+def _to_df_sm(dat, tz='UTC'):
+    # dataframrize a list of data with ts for Settings Manager
+    df = pd.DataFrame(columns=['Name', 'Field', 'Type', 'Pos', 'Setpoint'])
+    ms_list = []
+    for i, (ename, fname, etype, pos, val, ms) in enumerate(dat):
+        ms_list.append(ms)
+        df.loc[i] = [ename, fname, etype, pos, val]
+    ts_utc = pd.to_datetime(ms_list, unit='ms').tz_localize('UTC')
+    if tz != 'UTC':
+        df['time'] = ts_utc.tz_convert(tz)
+    else:
+        df['time'] = ts_utc
     return df
 
 
