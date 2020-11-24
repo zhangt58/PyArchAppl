@@ -12,6 +12,8 @@ from archappl.data.utils import LOCAL_ZONE_NAME
 T0_DST = datetime(2016, 11, 5, 23, 0, 0, 0)  # DST
 T1_EST = datetime(2016, 11, 6 ,6, 0, 0, 0)
 
+print(datetime_with_timezone(T0_DST))
+
 
 def test_func_datetime_with_timezone():
     """Test `datetime_with_timezone()`.
