@@ -199,7 +199,7 @@ def is_dst(date_time):
     if date_time.tzinfo is None:
         return bool(pytz.timezone(LOCAL_ZONE_NAME).localize(date_time).dst())
     else:
-        return bool(date_time.dst())
+        return bool(datetime_with_timezone(date_time).dst())
 
 
 # see phantasy.parse_dt
