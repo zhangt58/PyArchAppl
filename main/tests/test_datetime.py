@@ -9,8 +9,10 @@ from archappl.data.utils import standardize_datetime
 from archappl.data.utils import LOCAL_ZONE_NAME
 
 
-T0_DST = datetime(2016, 11, 5, 23, 0, 0, 0)  # DST
-T1_EST = datetime(2016, 11, 6 ,6, 0, 0, 0)
+T0_DST = datetime(2016, 11, 5, 23, 0, 0, 0,
+                  tzinfo=pytz.timezone('America/New_York'))  # DST
+T1_EST = datetime(2016, 11, 6 ,6, 0, 0, 0,
+                  tzinfo=pytz.timezone('America/New_York'))
 
 print(datetime_with_timezone(T0_DST))
 
