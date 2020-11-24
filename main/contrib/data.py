@@ -268,6 +268,16 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
     return df
 
 
+def _get_ion_info(t):
+    # to be tested
+    pv_ion_mass = "FE_ISRC1:BEAM:A_BOOK"
+    pv_ion_charge = "FE_ISRC1:BEAM:Q_BOOK"
+    pv_ion_number = "FE_ISRC1:BEAM:Z_BOOK"
+    pv_ion_name = "FE_ISRC1:BEAM:ELMT_BOOK"
+    pv_list = [pv_ion_mass, pv_ion_charge, pv_ion_number, pv_ion_name]
+    return get_dataset_at_time_with_pvs(pv_list, t, client=FRIBArchiverDataClient)
+
+
 def export_as_settings_manager_datafile(df, filepath, **kws):
     """Export dataframe as the datafile for Settings Manager.
 
