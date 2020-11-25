@@ -13,7 +13,8 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
+import pydata_sphinx_theme
+from archappl import __version__
 
 # -- Project information -----------------------------------------------------
 
@@ -22,7 +23,7 @@ copyright = '2020, Tong Zhang'
 author = 'Tong Zhang'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.0'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -47,7 +48,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'pydata_sphinx_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
