@@ -1,4 +1,7 @@
-Pull, Visualize and Play the data from Archiver Appliance, see `here`_.
+=========
+Resources
+=========
 
+*Pull, Visualize and Play the data from Archiver Appliance*: see `here`_.
 
 .. _here: https://github.com/archman/pyarchappl/blob/dc4c323cdea78e5ec426d5b5f1e296ad7414c895/doc/getting-started/pyarchappl.slides.html
