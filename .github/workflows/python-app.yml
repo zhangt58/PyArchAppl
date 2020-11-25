@@ -37,8 +37,8 @@ jobs:
       run: |
         pip install sphinx pydata_sphinx_theme
         cd doc
-        export PYTHONPATH=../
         make html
+        cp -arv getting-started build/html
         ! [ -e build/html/.nojekyll ] && touch build/html/.nojekyll
     - name: Publish documentation
       uses: JamesIves/github-pages-deploy-action@3.7.1
