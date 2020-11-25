@@ -1,0 +1,8 @@
+===============
+Getting Started
+===============
+
+See the link at `_SLIDES`_.
+
+
+.. _SLIDES: https://github.com/archman/pyarchappl/blob/dc4c323cdea78e5ec426d5b5f1e296ad7414c895/doc/getting-started/pyarchappl.slides.html
