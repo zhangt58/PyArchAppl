@@ -1,8 +1,4 @@
-===============
-Getting Started
-===============
-
-See the link at `_SLIDES`_.
+Pull, Visualize and Play the data from Archiver Appliance, see `here`_.
 
 
-.. __SLIDES: https://github.com/archman/pyarchappl/blob/dc4c323cdea78e5ec426d5b5f1e296ad7414c895/doc/getting-started/pyarchappl.slides.html
+.. _here: https://github.com/archman/pyarchappl/blob/dc4c323cdea78e5ec426d5b5f1e296ad7414c895/doc/getting-started/pyarchappl.slides.html
