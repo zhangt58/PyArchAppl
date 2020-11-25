@@ -39,16 +39,16 @@ jobs:
         pip install dist/*.whl --upgrade
         cd main/tests
         pytest -vs
-#    - name: Build documentation
-#      run: |
-#        pip install sphinx sphinx_rtd_theme numpydoc
-#        cd docs
-#        export PYTHONPATH=../
-#        make html
-#        ! [ -e _build/html/.nojekyll ] && touch _build/html/.nojekyll
-#    - name: Publish documentation
-#      uses: JamesIves/github-pages-deploy-action@3.5.9
-#      with:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        BRANCH: gh-pages
-#        FOLDER: docs/_build/html
+    - name: Build documentation
+      run: |
+        pip install sphinx pydata_sphinx_theme
+        cd doc
+        export PYTHONPATH=../
+        make html
+        ! [ -e build/html/.nojekyll ] && touch build/html/.nojekyll
+    - name: Publish documentation
+      uses: JamesIves/github-pages-deploy-action@3.5.9
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: doc/build/html
