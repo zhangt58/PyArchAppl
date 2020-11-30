@@ -10,7 +10,7 @@ install_requires = [
 extra_require = {
     'test': 'pytest',
     'fancy': 'tqdm',
-    'doc': 'sphinx', 'pydata_sphinx_theme',
+    'doc': ['sphinx', 'pydata_sphinx_theme'],
 }
 
 setup(
