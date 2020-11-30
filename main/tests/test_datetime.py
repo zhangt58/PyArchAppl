@@ -117,8 +117,8 @@ def test_standardize_datetime():
     t0_as_utc = datetime_with_timezone(t0, 'UTC')
     datetimetuple1 = (2016, 11, 5, 23, 0, 0)  # 2016-11-05 23:00:00
 
-    d_str1 = standardize_datetime(datetimetuple1, time_zone=US_NY_ZONE_NAME)
+    _, d_str1 = standardize_datetime(datetimetuple1, time_zone=US_NY_ZONE_NAME)
     assert d_str1 == f"{t0_as_utc.year:4d}-{t0_as_utc.month:02d}-{t0_as_utc.day:02d}T{t0_as_utc.hour:02d}:{t0_as_utc.minute:02d}:{t0_as_utc.second:02d}.{int(t0_as_utc.microsecond/1000):03d}Z"
 
-    assert d_str1 == standardize_datetime(T0_DST)
-    assert d_str1 == standardize_datetime(t0)
+    assert d_str1 == standardize_datetime(T0_DST)[1]
+    assert d_str1 == standardize_datetime(t0)[1]
