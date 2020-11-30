@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import time
 import pandas as pd
 from archappl.client import FRIBArchiverDataClient
@@ -320,7 +321,7 @@ def export_as_settings_manager_datafile(df, filepath, **kws):
     df['Writable'] = ['True'] * nrow
     _user = getuser()
     _timestamp = df['time'].astype('int64').mean() / 1e9
-    _datetime = df['time'].mean().isoformat()
+    _datetime = datetime.fromtimestamp(_timestamp).isoformat() # df['time'].mean().isoformat()
     _note = kws.get('note', 'Retrieved from Archiver')
     _tags = kws.get('tags', '')
     _machine = kws.get('machine', 'FRIB')
