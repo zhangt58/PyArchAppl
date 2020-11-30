@@ -33,8 +33,8 @@ def standardize_datetime(date_time, time_zone=None):
 
     Returns
     -------
-    r : str
-        ISO8601 UTC string represented datetime, e.g.
+    r : tuple
+        A tuple of datetime object and ISO8601 UTC string represented datetime, e.g.
         '2020-11-19T12:28:30.000Z'.
 
     Examples
@@ -65,7 +65,7 @@ def standardize_datetime(date_time, time_zone=None):
         else:
             _t = datetime_with_timezone(date_time, _tz.zone)
             t = datetime_with_timezone(_t, 'UTC')
-    return f"{t.year:4d}-{t.month:02d}-{t.day:02d}T{t.hour:02d}:{t.minute:02d}:{t.second:02d}.{int(t.microsecond/1000.0):03d}Z"
+    return t, f"{t.year:4d}-{t.month:02d}-{t.day:02d}T{t.hour:02d}:{t.minute:02d}:{t.second:02d}.{int(t.microsecond/1000.0):03d}Z"
 
 
 def iso_to_epoch(s):

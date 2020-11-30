@@ -14,7 +14,15 @@ def dformat(*args, **kws):
     millisecond, it is recommended always input year, month, day, hour,
     minute, second and millisecond as 0 if not input.
     """
-    return standardize_datetime(args, **kws)
+    _, tstr = standardize_datetime(args, **kws)
+    return tstr
+
+
+def dformat_(*args, **kws):
+    """Return datetime object based on the input datatime tuple.
+    """
+    t, _ = standardize_datetime(args, **kws)
+    return t
 
 
 FRIBArchiverDataClient = ArchiverDataClient(
@@ -27,6 +35,6 @@ __all__ = [
     "datetime_with_timezone",
     "is_dst",
     "standardize_datetime",
-    "dformat",
+    "dformat", "dformat_",
     "printlog"
 ]
