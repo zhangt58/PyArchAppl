@@ -369,3 +369,7 @@ def _to_df(dat, tz='UTC'):
     else:
         df['time'] = idx_utc
     return df
+
+
+def read_csv(filepath, parse_dates=['time'], index_col='time', **kws):
+    return pd.read_csv(filepath, parse_dates=parse_dates, index_col=index_col, **kws)
