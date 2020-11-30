@@ -15,7 +15,7 @@ extra_require = {
 
 setup(
         name='pyarchappl',
-        version='0.9.1',
+        version='0.9.2',
         description='Python interface to Archiver Appliance',
         author='Tong Zhang',
         author_email='zhangt@frib.msu.edu',
