@@ -1,5 +1,17 @@
 from setuptools import setup
 
+install_requires = [
+    'pandas',
+    'tzlocal',
+    'requests',
+    'simplejson',
+]
+
+extra_require = {
+    'test': 'pytest',
+    'fancy': 'tqdm',
+    'doc': 'sphinx', 'pydata_sphinx_theme',
+}
 
 setup(
         name='pyarchappl',
@@ -19,4 +31,6 @@ setup(
             'archappl.contrib': 'main/contrib',
             'archappl': 'main'
         },
+        install_requires=install_requires,
+        extra_require=extra_require,
 )
