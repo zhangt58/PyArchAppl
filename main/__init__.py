@@ -7,10 +7,17 @@ try:
 except ImportError:
     NB_SHELL = False
 finally:
-    if NB_SHELL:
-        from tqdm.notebook import tqdm
+    import pkg_resources
+    try:
+        pkg_resources.get_distribution('tqdm')
+    except pkg_resources.DistributionNotFound:
+        TQDM_INSTALLED = False
     else:
-        from tqdm import tqdm
+        TQDM_INSTALLED = True
+        if NB_SHELL:
+            from tqdm.notebook import tqdm
+        else:
+            from tqdm import tqdm
 
 from archappl.client import *
 from archappl.data import *

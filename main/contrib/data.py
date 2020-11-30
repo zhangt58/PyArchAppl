@@ -5,7 +5,7 @@ import pandas as pd
 from archappl.client import FRIBArchiverDataClient
 from archappl.data.utils import LOCAL_ZONE_NAME
 from archappl import printlog
-from archappl import tqdm
+from archappl import TQDM_INSTALLED
 
 
 def _get_data(pv, from_time, to_time, client=None):
@@ -83,7 +83,8 @@ def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
     df_list = []
-    if verbose != 0:
+    if verbose != 0 and TQDM_INSTALLED:
+        from archappl import tqdm
         pbar = tqdm(pv_list)
     else:
         pbar = pv_list
