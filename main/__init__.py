@@ -23,7 +23,7 @@ from archappl.client import *
 from archappl.data import *
 
 
-__version__ = '0.9.0'
+__version__ = '0.9.1'
 __author__ = 'Tong Zhang <zhangt@frib.msu.edu>'
 
 __doc__ ="""archappl: Python interface of Archiver Appliance."""
