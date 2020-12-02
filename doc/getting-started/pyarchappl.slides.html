@@ -14380,12 +14380,12 @@ div.jp-OutputPrompt {
 <div class="slides"><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Pull,-Visualize-and-Play-the-data-from-Archiver-Appliance">Pull, Visualize and Play the data from Archiver Appliance<a class="anchor-link" href="#Pull,-Visualize-and-Play-the-data-from-Archiver-Appliance">&#182;</a></h1><p>This notebook shows how to use <strong>pyarchappl</strong> Python package to work with Archiver Appliance web service, along with a practical use case, which shows how to extract the machine settings from the recorded data, based on the machine performance trends with timestamps, which could also be visualized with the data.</p>
+<h1 id="Pull,-Visualize-and-Play-the-data-from-Archiver-Appliance">Pull, Visualize and Play the data from Archiver Appliance<a class="anchor-link" href="#Pull,-Visualize-and-Play-the-data-from-Archiver-Appliance">&#182;</a></h1><p>The following slides present how to use <strong>pyarchappl</strong> Python package to work with Archiver Appliance web service, along with a practical use case, which shows how to extract the machine settings from the recorded data, based on the machine performance trends with timestamps, which could also be visualized with the data.</p>
 <p>Furthermore, it also shows how to interface the high-level application so-called <strong>Settings Manager</strong>, by exporting the extracted settings data into a data file and loading into, as such, other operations could be well performed in the context of Settings Manager.</p>
 <hr>
 
 <p>Tong Zhang <a href="mailto:zhangt@frib.msu.edu">zhangt@frib.msu.edu</a></p>
-<p>Last updated: 2020-11-30</p>
+<p>Last updated: 2020-12-02</p>
 
 </div>
 </div></section></section><section><section>
@@ -14397,6 +14397,7 @@ div.jp-OutputPrompt {
 <li>Integration with <em>PHANTASY</em> framework, if <strong>phantasy</strong> is installed</li>
 <li>Work data with <strong>pandas</strong></li>
 <li>Hosted on GitHub</li>
+<li>Installation: <code>pip install pyarchappl</code></li>
 </ul>
 
 </div>
@@ -14430,7 +14431,7 @@ div.jp-OutputPrompt {
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>archappl: Python interface of Archiver Appliance.
-Version:  0.9.1
+Version:  0.9.2
 Author :  Tong Zhang &lt;zhangt@frib.msu.edu&gt;
 </pre>
 </div>
@@ -14677,17 +14678,17 @@ minute, second and millisecond as 0 if not input.</code></pre>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>[14:55:52.320] INFO: phantasy.library.operation.core: Load new machine: &#39;FRIB_VA&#39;, segment: &#39;LS1FS1&#39;
-[14:55:52.323] INFO: phantasy.library.parser.config: Importing FRIB_VA from /home/tong/Dropbox/phantasy-project/phantasy-machines/FRIB_VA
-[14:55:52.325] INFO: phantasy.library.parser.config: Loading machine configuration from /home/tong/Dropbox/phantasy-project/phantasy-machines/FRIB_VA/phantasy.ini
-[14:55:52.328] INFO: phantasy.library.operation.lattice: Loading segment: &#39;LS1FS1&#39;
-[14:55:52.331] WARNING: phantasy.library.operation.lattice: Default UNICORN policy will be applied.
-[14:55:52.332] WARNING: phantasy.library.operation.lattice: Default device polarity will be applied.
-[14:55:52.335] INFO: phantasy.library.operation.lattice: Loading PV data from CSV/SQLite: /home/tong/Dropbox/phantasy-project/phantasy-machines/FRIB_VA/ls1fs1/channels.csv
-[14:55:52.336] INFO: phantasy.library.pv.datasource: Set source to be CSV table: channels.csv.
-[14:55:52.414] INFO: phantasy.library.operation.lattice: Model data directory: /home/tong/phantasy_data/20201130/model_data/data_145552
-[14:55:52.420] INFO: phantasy.library.operation.lattice: Found 1725 PVs in &#39;LS1FS1&#39;.
-[14:55:52.734] INFO: phantasy.library.operation.lattice: &#39;LS1FS1&#39; has 417 elements
+<pre>[09:29:44.484] INFO: phantasy.library.operation.core: Load new machine: &#39;FRIB_VA&#39;, segment: &#39;LS1FS1&#39;
+[09:29:44.488] INFO: phantasy.library.parser.config: Importing FRIB_VA from /home/tong/Dropbox/phantasy-project/phantasy-machines/FRIB_VA
+[09:29:44.492] INFO: phantasy.library.parser.config: Loading machine configuration from /home/tong/Dropbox/phantasy-project/phantasy-machines/FRIB_VA/phantasy.ini
+[09:29:44.494] INFO: phantasy.library.operation.lattice: Loading segment: &#39;LS1FS1&#39;
+[09:29:44.499] WARNING: phantasy.library.operation.lattice: Default UNICORN policy will be applied.
+[09:29:44.501] WARNING: phantasy.library.operation.lattice: Default device polarity will be applied.
+[09:29:44.503] INFO: phantasy.library.operation.lattice: Loading PV data from CSV/SQLite: /home/tong/Dropbox/phantasy-project/phantasy-machines/FRIB_VA/ls1fs1/channels.csv
+[09:29:44.505] INFO: phantasy.library.pv.datasource: Set source to be CSV table: channels.csv.
+[09:29:44.595] INFO: phantasy.library.operation.lattice: Model data directory: /home/tong/phantasy_data/20201202/model_data/data_092944
+[09:29:44.600] INFO: phantasy.library.operation.lattice: Found 1725 PVs in &#39;LS1FS1&#39;.
+[09:29:44.931] INFO: phantasy.library.operation.lattice: &#39;LS1FS1&#39; has 417 elements
 </pre>
 </div>
 </div>
@@ -15161,12 +15162,12 @@ minute, second and millisecond as 0 if not input.</code></pre>
 
 
 
-<div id="b971aaef-5a0e-4511-adca-1c299907f633" class="jupyter-widgets jp-OutputArea-output ">
+<div id="070a4e06-eb3c-4a32-a5f7-81920a6bfdd7" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('b971aaef-5a0e-4511-adca-1c299907f633');
+var element = document.getElementById('070a4e06-eb3c-4a32-a5f7-81920a6bfdd7');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "a50d571718e44d419e9d6757d09534ce", "version_major": 2, "version_minor": 0}
+{"model_id": "bbb9b14d5e0c4ec1849a6b68d8da5ff0", "version_major": 2, "version_minor": 0}
 </script>
 </div>
 
@@ -15180,7 +15181,7 @@ var element = document.getElementById('b971aaef-5a0e-4511-adca-1c299907f633');
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>
-[2020-11-30T14:55:58.538263] Fetched all, time cost: 5.8 seconds.
+[2020-12-02T09:29:53.118138] Fetched all, time cost: 8.2 seconds.
 </pre>
 </div>
 </div>
@@ -16025,7 +16026,7 @@ memory usage: 4.6 MB
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f26761f2b20&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fe1da016670&gt;</pre>
 </div>
 
 </div>
@@ -16081,7 +16082,7 @@ height=568
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f26746b0fd0&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fe1d8587550&gt;</pre>
 </div>
 
 </div>
@@ -16167,7 +16168,7 @@ height=567
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;matplotlib.legend.Legend at 0x7f2675f7aa00&gt;</pre>
+<pre>&lt;matplotlib.legend.Legend at 0x7fe1d9da6ee0&gt;</pre>
 </div>
 
 </div>
@@ -16805,7 +16806,7 @@ memory usage: 16.6 MB
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f2663e3daf0&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fe1c8434e50&gt;</pre>
 </div>
 
 </div>
@@ -16861,7 +16862,7 @@ height=571
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f2663cb05b0&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fe1c83aa400&gt;</pre>
 </div>
 
 </div>
@@ -16921,7 +16922,7 @@ height=571
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;matplotlib.legend.Legend at 0x7f2663d0eb50&gt;</pre>
+<pre>&lt;matplotlib.legend.Legend at 0x7fe1c8275d60&gt;</pre>
 </div>
 
 </div>
