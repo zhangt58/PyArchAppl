@@ -301,11 +301,13 @@ def export_as_settings_manager_datafile(df, filepath, **kws):
     segment : str
         Name of segment, default is 'LINAC'.
     ion_name : str
-        Name of ion.
+        Name of ion, default is 'NAN'.
+    ion_number: int
+        Ion number, default is 0.
     ion_mass : int
-        Ion mass.
+        Ion mass, default is 0.
     ion_charge : int
-        Ion charge.
+        Ion charge, default is 0.
 
     See Also
     --------
@@ -326,7 +328,10 @@ def export_as_settings_manager_datafile(df, filepath, **kws):
     _tags = kws.get('tags', '')
     _machine = kws.get('machine', 'FRIB')
     _segment = kws.get('segment', 'LINAC')
-    _ion_name, _ion_num, _ion_mass, _ion_charge = '', '', '', ''
+    _ion_name = kws.get('ion_name', 'NAN')
+    _ion_num = kws.get('ion_number', 0)
+    _ion_mass = kws.get('ion_mass', 0)
+    _ion_charge = kws.get('ion_charge', 0)
 
     ks = ('timestamp', 'datetime', 'note', 'filepath', 'user',
           'ion_name', 'ion_number', 'ion_mass', 'ion_charge',
