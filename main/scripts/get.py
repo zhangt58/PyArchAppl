@@ -49,12 +49,12 @@ parser.epilog = \
 Examples:
 # Retrieve raw PV data in the defined time frame
 $ {n} -o data.csv -v \\
-  --pv LS1_CA01:BPM_D1129:X_RD --pv LS1_CA01:BPM_D1129:Y_RD  \\
+  --pv LS1_CA01:BPM_D1129:XPOS_RD --pv LS1_CA01:BPM_D1129:YPOS_RD  \\
   --from 2021-04-15T20:10:00.000Z --to 2021-04-15T21:25:00.000Z \\
 
 # Align the timestamps, resample at 1 second
 $ {n} -o data.csv -v \\
-  --pv LS1_CA01:BPM_D1129:X_RD --pv LS1_CA01:BPM_D1129:Y_RD  \\
+  --pv LS1_CA01:BPM_D1129:XPOS_RD --pv LS1_CA01:BPM_D1129:YPOS_RD  \\
   --from 2021-04-15T20:10:00.000Z --to 2021-04-15T21:25:00.000Z \\
   --resample 1S
 
