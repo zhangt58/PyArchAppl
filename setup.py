@@ -1,15 +1,15 @@
 from setuptools import setup
 
 install_requires = [
-    'pandas',
-    'tzlocal',
-    'requests',
-    'simplejson',
+    'pandas==1.1.4',
+    'tzlocal==2.1',
+    'requests==2.24.0',
+    'simplejson==3.16.0',
 ]
 
 extra_require = {
     'test': 'pytest',
-    'fancy': 'tqdm',
+    'fancy': 'tqdm==4.47.0',
     'doc': ['sphinx', 'pydata_sphinx_theme'],
 }
 
@@ -23,7 +23,7 @@ def set_entry_points():
 
 setup(
         name='pyarchappl',
-        version='0.9.2',
+        version='0.9.3',
         description='Python interface to Archiver Appliance',
         author='Tong Zhang',
         author_email='zhangt@frib.msu.edu',
