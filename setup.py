@@ -5,11 +5,11 @@ install_requires = [
     'tzlocal==2.1',
     'requests==2.24.0',
     'simplejson==3.16.0',
+    'tqdm==4.47.0',
 ]
 
 extra_require = {
-    'test': 'pytest',
-    'fancy': 'tqdm==4.47.0',
+    'test': ['pytest'],
     'doc': ['sphinx', 'pydata_sphinx_theme'],
 }
 
@@ -23,7 +23,7 @@ def set_entry_points():
 
 setup(
         name='pyarchappl',
-        version='0.9.3',
+        version='0.9.4',
         description='Python interface to Archiver Appliance',
         author='Tong Zhang',
         author_email='zhangt@frib.msu.edu',
