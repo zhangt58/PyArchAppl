@@ -8,6 +8,10 @@ from archappl.data.utils import LOCAL_ZONE_NAME
 from archappl import printlog
 from archappl import TQDM_INSTALLED
 
+class HitSingleDataEntry(Exception):
+    def __init__(self, *args, **kws):
+        super(self.__class__, self).__init__(*args, **kws)
+
 
 def _get_data(pv, from_time, to_time, client=None):
     if client is None:
@@ -15,11 +19,24 @@ def _get_data(pv, from_time, to_time, client=None):
     data = client.get_data(pv,
                            from_time=from_time,
                            to_time=to_time)
-    if len(data.iloc[:, 0]) == 1:
-        return None
-    data.drop(columns=['severity', 'status'], inplace=True)
-    data.rename(columns={'val': pv}, inplace=True)
-    return data
+    try:
+        assert data is not None
+        if len(data.iloc[:,0]) == 1:
+            raise HitSingleDataEntry
+    except AssertionError:
+        # got nothing
+        r, reason = None, "NotExist"
+    except HitSingleDataEntry:
+        reason = "SingleEntry"
+        data.drop(columns=['severity', 'status'], inplace=True)
+        data.rename(columns={'val': pv}, inplace=True)
+        r = data
+    else:
+        data.drop(columns=['severity', 'status'], inplace=True)
+        data.rename(columns={'val': pv}, inplace=True)
+        r, reason = data, "OK"
+    finally:
+        return r, reason
 
 
 def _get_data_at_time(pv_list, at_time, client=None):
@@ -90,8 +107,8 @@ def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
     else:
         pbar = pv_list
     for pv in pbar:
-            data_ = _get_data(pv, from_time, to_time, client=client)
-            if data_ is None:
+            data_, reason_ = _get_data(pv, from_time, to_time, client=client)
+            if reason_ == 'NotExist':
                 if verbose > 1:
                     pbar.set_description(f"Skip {pv}")
                 continue
