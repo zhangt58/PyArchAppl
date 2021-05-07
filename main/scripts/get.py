@@ -40,7 +40,7 @@ parser.add_argument('--verbose', '-v', action='count', default=0,
 parser.add_argument('-o', '--output', dest='output', default=None,
         help="File path for output data, print to stdout if not defined")
 parser.add_argument('-f', '--output-format', dest='fmt', default='csv',
-        help="File format for output data, supported: csv, hdf, html, ...")
+        help="File format for output data, supported: csv, hdf, excel, html, ...")
 parser.add_argument('--format-args', dest='fmt_args', type=json.loads, default='{}',
         help='''Additional arguments passed to data export function in the form of dict, e.g. '{"key":"data"}' (for hdf format)''')
 
@@ -112,6 +112,8 @@ def main():
     else:
         attr_fmt = f"to_{args.fmt}"
         if hasattr(dset, attr_fmt):
+            if args.fmt == 'hdf':
+                args.fmt_args.setdefault('key', 'data')
             getattr(dset, attr_fmt)(output, **args.fmt_args)
         else:
             print(f"{args.fmt}: no supported export function.")
