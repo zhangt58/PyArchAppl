@@ -1,0 +1,17 @@
+Source: pyarchappl
+Section: python
+Priority: optional
+Maintainer: Tong Zhang <zhangt@frib.msu.edu>
+Build-Depends: debhelper (>= 9), dh-python, python3-setuptools, python3-all
+Standards-Version: 4.3.0
+Homepage: https://stash.frib.msu.edu/projects/PHYAPP/repos/pyarchappl
+Vcs-Browser: https://stash.frib.msu.edu/projects/PHYAPP/repos/pyarchappl/browse
+Vcs-Git: https://stash.frib.msu.edu/scm/phyapp/pyarchappl.git
+
+Package: python3-pyarchappl
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}
+Description: Python interface for Archiver Appliance (Python 3)
+ Python client for Archiver Appliance, and CLI tools for data retrieval.
+ .
+ This package installs the library for Python 3.

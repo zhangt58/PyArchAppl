@@ -1,0 +1,5 @@
+pyarchappl (0.9.4-1) unstable; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Tue, 24 Aug 2021 16:20:00 -0400
