@@ -23,7 +23,7 @@ def set_entry_points():
 
 setup(
         name='pyarchappl',
-        version='0.9.4',
+        version='0.9.5',
         description='Python interface to Archiver Appliance',
         author='Tong Zhang',
         author_email='zhangt@frib.msu.edu',
