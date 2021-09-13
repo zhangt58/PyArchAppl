@@ -40,7 +40,7 @@ parser.add_argument('--verbose', '-v', action='count', default=0,
 parser.add_argument('-o', '--output', dest='output', default=None,
         help="File path for output data, print to stdout if not defined")
 parser.add_argument('-f', '--output-format', dest='fmt', default='csv',
-        help="File format for output data, supported: csv, hdf, html, ...")
+        help="File format for output data, supported: csv, hdf, excel, html, ...")
 parser.add_argument('--format-args', dest='fmt_args', type=json.loads, default='{}',
         help='''Additional arguments passed to data export function in the form of dict, e.g. '{"key":"data"}' (for hdf format)''')
 
@@ -49,12 +49,12 @@ parser.epilog = \
 Examples:
 # Retrieve raw PV data in the defined time frame
 $ {n} -o data.csv -v \\
-  --pv LS1_CA01:BPM_D1129:X_RD --pv LS1_CA01:BPM_D1129:Y_RD  \\
+  --pv LS1_CA01:BPM_D1129:XPOS_RD --pv LS1_CA01:BPM_D1129:YPOS_RD  \\
   --from 2021-04-15T20:10:00.000Z --to 2021-04-15T21:25:00.000Z \\
 
 # Align the timestamps, resample at 1 second
 $ {n} -o data.csv -v \\
-  --pv LS1_CA01:BPM_D1129:X_RD --pv LS1_CA01:BPM_D1129:Y_RD  \\
+  --pv LS1_CA01:BPM_D1129:XPOS_RD --pv LS1_CA01:BPM_D1129:YPOS_RD  \\
   --from 2021-04-15T20:10:00.000Z --to 2021-04-15T21:25:00.000Z \\
   --resample 1S
 
@@ -112,6 +112,8 @@ def main():
     else:
         attr_fmt = f"to_{args.fmt}"
         if hasattr(dset, attr_fmt):
+            if args.fmt == 'hdf':
+                args.fmt_args.setdefault('key', 'data')
             getattr(dset, attr_fmt)(output, **args.fmt_args)
         else:
             print(f"{args.fmt}: no supported export function.")

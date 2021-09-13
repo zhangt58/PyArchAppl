@@ -26,7 +26,10 @@ def dformat_(*args, **kws):
 
 
 FRIBArchiverDataClient = ArchiverDataClient(
-    "http://epicsarchiver0.ftc:17668")
+    "http://epicsarchiver1.ftc:17668")
+
+ReAArchiverDataClient = ArchiverDataClient(
+    "http://rea-epicsarch.frib.msu.edu")
 
 
 __all__ = [
