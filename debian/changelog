@@ -1,3 +1,15 @@
+pyarchappl (0.9.5-1) unstable; urgency=medium
+
+  * Merge tag 'upstream/0.9.5' into uc3
+  * MNT: Bump version to 0.9.5.
+  * MNT: Add client for ReA Archiver Appliance.
+  * MNT: Update FRIB archiver appliance URL.
+  * REF: Set default key param for HDF format.
+  * REF: Handle exceptions for data retrieval.
+  * MNT: Update examples of pyarchappl-get tool.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Mon, 13 Sep 2021 10:47:04 -0400
+
 pyarchappl (0.9.4-2) unstable; urgency=medium
 
   * BLD: Override lintian tags.
