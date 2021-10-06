@@ -48,8 +48,9 @@ def _get_data_at_time(pv_list, at_time, client=None):
     return data
 
 
-def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
+def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     """Pull data from Archiver Appliance, with a given list of PVs, within defined time slot.
+    Return None if no data is retrieved.
 
     Parameters
     ----------
@@ -74,7 +75,7 @@ def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
     Returns
     -------
     r : dataframe
-        Pandas dataframe with datetime as the index, and device PV names as columns
+        Pandas dataframe with datetime as the index, and device PV names as columns.
 
     See Also
     --------
@@ -115,6 +116,8 @@ def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
             df_list.append(data_)
             if verbose > 1:
                 pbar.set_description(f"Fetched {pv}")
+    if not df_list:
+        return None
     data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
     if resample is not None:
@@ -125,9 +128,9 @@ def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
     return data
 
 
-def get_dataset_with_devices(element_list, field_list, from_time, to_time, **kws):
+def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=None, **kws):
     """Pull data from Archiver Appliance, with a given list of devices and dynamic fields,
-    within defined time slot.
+    within defined time slot. Return None if no data is retrieved.
 
     Parameters
     ----------
