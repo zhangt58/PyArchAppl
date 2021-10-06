@@ -127,6 +127,8 @@ def normalize(data, tz='UTC'):
     """
     meta = data[0]['meta']
     payloads = data[0]['data']
+    if not payloads:
+        return None
 
     payload0 = payloads[0]
     other_val_keys = PAYLOAD_KEYS #[k for k in payload0 if k not in ('secs', 'nanos')]
