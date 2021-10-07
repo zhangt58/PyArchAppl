@@ -108,14 +108,14 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     else:
         pbar = pv_list
     for pv in pbar:
-            data_, reason_ = _get_data(pv, from_time, to_time, client=client)
-            if reason_ == 'NotExist':
-                if verbose > 1:
-                    pbar.set_description(f"Skip {pv}")
-                continue
-            df_list.append(data_)
+        data_, reason_ = _get_data(pv, from_time, to_time, client=client)
+        if reason_ == 'NotExist':
             if verbose > 1:
-                pbar.set_description(f"Fetched {pv}")
+                pbar.set_description(f"Skip {pv}")
+            continue
+        df_list.append(data_)
+        if verbose > 1:
+            pbar.set_description(f"Fetched {pv}")
     if not df_list:
         return None
     data = df_list[0].join(df_list[1:], how='outer')
@@ -383,6 +383,8 @@ def _to_df_sm(dat, tz='UTC'):
 
 def _to_df(dat, tz='UTC'):
     # dataframrize dat (dict of {pv:{payload}}) from get_data_at_time().
+    if dat is None:
+        return None
     df = pd.DataFrame(columns=['PV', 'val', 'status', 'severity'])
     ms_list = []
     for i, (k, v) in enumerate(dat.items()):
@@ -393,6 +395,7 @@ def _to_df(dat, tz='UTC'):
         df['time'] = idx_utc.tz_convert(tz)
     else:
         df['time'] = idx_utc
+    df.set_index('PV', inplace=True)
     return df
 
 
