@@ -56,7 +56,10 @@ class ArchiverDataClient(object):
                           headers=JSON_HEADERS)
         try:
             ret = r.json()
+            assert ret != {}
         except JSONDecodeError:
+            ret = None
+        except AssertionError:
             ret = None
         finally:
             return ret
