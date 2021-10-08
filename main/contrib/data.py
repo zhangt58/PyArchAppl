@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from functools import partial
 import time
 import pandas as pd
 from archappl.client import FRIBArchiverDataClient
@@ -160,7 +161,8 @@ def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=N
     Returns
     -------
     r : dataframe
-        Pandas dataframe with datetime as the index, and device PV names as columns
+        Pandas dataframe with datetime as the index, and device names as 1st level columns, and
+        field names as 2nd level columns.
 
     See Also
     --------
@@ -189,7 +191,8 @@ def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=N
     handle = kws.pop('handle', 'readback')
     pv_list = [i.pv(field=f, handle=handle)[0] for i in element_list
                 for f in field_list if i.pv(field=f, handle=handle) != []]
-    return get_dataset_with_pvs(pv_list, from_time, to_time, **kws)
+    _df = get_dataset_with_pvs(pv_list, from_time, to_time, **kws)
+    return _fieldize_df(_df, element_list, field_list, handle)
 
 
 def get_dataset_at_time_with_pvs(pv_list, at_time, **kws):
@@ -379,6 +382,20 @@ def _to_df_sm(dat, tz='UTC'):
     else:
         df['time'] = ts_utc
     return df
+
+
+def _fieldize_df(df, elems, fnames, handle='setpoint'):
+    # transform dataframe of retrieved values with PV names as columns,
+    # to element/fname multilevel columns
+    #
+    def _f(elems, fnames, irow):
+        _d = irow.to_dict()
+        return [elem.get_settings(fname, _d, handle=handle) for elem in elems for fname in fnames]
+    data = df.apply(partial(_f, elems, fnames), axis=1).tolist()
+    df1 = pd.DataFrame(data=data, index=df.index)
+    cols = pd.MultiIndex.from_tuples([(elem.name, fname) for elem in elems for fname in fnames])
+    df1.columns = cols
+    return df1
 
 
 def _to_df(dat, tz='UTC'):
