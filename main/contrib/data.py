@@ -245,6 +245,8 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
         PV handle for field list, by default is 'readback', other options: 'setpoint'.
     tz : str
         Name of timezone for the returned index, default is local zone.
+    setpoint_alt_field_list : list
+        A list of field names, for each retrieve readset PVs if given handle is 'setpoint'.
 
     Returns
     -------
@@ -257,6 +259,9 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
     field_list_per_element = []
     elem_list = []
 
+    cset_alt_flist = kws.pop('setpoint_alt_field_list', [])
+    # ['PHA', 'PHA1', 'PHA2', 'PHA3']:
+
     for i in element_list:
         _pv_list = []
         _field_list = []
@@ -264,7 +269,14 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
             if f not in i.fields:
                 continue
             _field_list.append(f)
-            field_pv_list_ = i.pv(field=f, handle=handle)
+
+            # for CAV, retrieve RSET if asking for CSET
+            if handle == 'setpoint' and f in cset_alt_flist:
+                handle_ = 'readset'
+            else:
+                handle_ = handle
+            #
+            field_pv_list_ = i.pv(field=f, handle=handle_)
             _pv_list.append(field_pv_list_)
             all_pv_list.extend(field_pv_list_)
         if _field_list == []:
@@ -276,6 +288,18 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
     client = kws.pop('client', None)
     tz = kws.pop('tz', LOCAL_ZONE_NAME)
     data_ = _get_data_at_time(all_pv_list, at_time, client)
+
+    # map all CAV PHA? PVs from RSET to CSET, create new CSET keys
+    if cset_alt_flist:
+        for i in element_list:
+            # if i.family != 'CAV':
+            #     continue
+            for f in field_list:
+                if f not in i.fields:
+                    continue
+                if f in cset_alt_flist:
+                    data_[i.pv(field=f, handle='setpoint')[0]] = data_[i.pv(field=f, handle='readset')[0]]
+
     pv_val_dict = {k: v['val'] for k, v in data_.items()}
     fval_list = []  # list of element with field values
     for elem_, pv_list_, field_list_  in zip(elem_list, pv_list_per_element, field_list_per_element):
