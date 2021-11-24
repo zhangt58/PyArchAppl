@@ -123,7 +123,9 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
     if resample is not None:
-        data = data[from_time:to_time].resample(resample).ffill()
+        _df1 = data[from_time:to_time]
+        _df2 = _df1[~_df1.index.duplicated(keep='first')]
+        data = _df2.resample(resample).ffill()
         data.dropna(inplace=True)
     if verbose > 0:
         printlog(f"Fetched all, time cost: {time.time() - t0_:.1f} seconds.")
