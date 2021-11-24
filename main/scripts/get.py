@@ -37,6 +37,8 @@ parser.add_argument('--resample', dest='resample', default=None,
         help="The offset string/object representing target conversion, e.g. '1S' for resample with 1 second")
 parser.add_argument('--verbose', '-v', action='count', default=0,
         help="Verbosity level of the log output, 0: no output, 1(-v): output progress, 2(-vv): output progress with description")
+parser.add_argument('--version', action='store_true',
+        help="Print out version info")
 parser.add_argument('-o', '--output', dest='output', default=None,
         help="File path for output data, print to stdout if not defined")
 parser.add_argument('-f', '--output-format', dest='fmt', default='csv',
@@ -72,6 +74,11 @@ $ {n} --output data.csv -vv \\
 
 def main():
     args = parser.parse_args(sys.argv[1:])
+
+    if args.version:
+        from archappl import __version__
+        print(f"Current version of pyarchappl is: {__version__}")
+        sys.exit(0)
 
     # time range
     if args.from_time is None or args.to_time is None:
