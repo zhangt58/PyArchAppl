@@ -63,7 +63,7 @@ $ {n} --output data.csv -vv \\
   --pv-file pvlist.txt \\
   --from 2021-04-15T20:10:00.000Z --to 2021-04-15T21:25:00.000Z \\
 
-> Time format:
+# Time format:
   The following time strings with different timezones define the same time:
   2021-04-15T21:25:00.000Z (GMT)
   2021-04-15T17:25:00.00-04:00 (America/New_York)
@@ -75,7 +75,7 @@ def main():
 
     # time range
     if args.from_time is None or args.to_time is None:
-        parser.print_help()
+        print("Arguments: --from and --to are required, see help with -h.")
         sys.exit(1)
 
     # pv list
