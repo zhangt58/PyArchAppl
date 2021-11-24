@@ -98,7 +98,7 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
                                         resample="1S", verbose=2,
                                         client=data_client)
     """
-    t0 = time.time()
+    t0_ = time.time()
     client = kws.pop('client', None)
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
@@ -111,6 +111,7 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     for pv in pbar:
         data_, reason_ = _get_data(pv, from_time, to_time, client=client)
         if reason_ == 'NotExist':
+            print(f"Skip not being archived PV: {pv}")
             if verbose > 1:
                 pbar.set_description(f"Skip {pv}")
             continue
@@ -122,10 +123,10 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
     if resample is not None:
-        data = data.resample(resample).ffill()
+        data = data[from_time:to_time].resample(resample).ffill()
         data.dropna(inplace=True)
     if verbose > 0:
-        printlog(f"Fetched all, time cost: {time.time() - t0:.1f} seconds.")
+        printlog(f"Fetched all, time cost: {time.time() - t0_:.1f} seconds.")
     return data
 
 
