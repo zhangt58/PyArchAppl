@@ -252,6 +252,13 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
     -------
     r : dataframe
         Pandas dataframe.
+
+    Examples
+    --------
+    >>> # Pull the setpoint values from a list of element for each field defined in field_list,
+    >>> # use readset PVs for field defined in setpoint_alt_field_list argument.
+    >>> get_dataset_at_time_with_devices(element_list, field_list, t0, handle='setpoint',
+    >>>                                  setpoint_alt_field_list=['PHA', 'PHA1', 'PHA2', 'PHA3'])
     """
     handle = kws.pop('handle', 'readback')
     all_pv_list = []
