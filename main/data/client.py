@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import requests
 import json
 from simplejson import JSONDecodeError
 import pandas as pd
 from .utils import LOCAL_ZONE_NAME
 from .pb import unpack_raw_data
+
+_LOGGER = logging.getLogger(__name__)
 
 PAYLOAD_KEYS = ('val', 'status', 'severity')
 
@@ -34,6 +37,8 @@ class ArchiverDataClient(object):
         self._url_config = [URL_DEFAULT, '/retrieval/data/getData.', DEFAULT_FMT]
         self.url = url
         self.format = kws.get('format', None)
+        _LOGGER.debug(f"URL of data client is: {self.url}")
+        _LOGGER.debug(f"Data request in the format of '{self.format}'")
 
     @property
     def format(self):
@@ -113,6 +118,7 @@ class ArchiverDataClient(object):
 
         r = requests.get(url)
         if not r.ok:
+            _LOGGER.error(f"Failed to get data, error code {r.status_code}")
             return None
         if self.format == 'raw':
             data = unpack_raw_data(r.content)
@@ -125,11 +131,12 @@ class ArchiverDataClient(object):
             else:
                 return normalize(data, tz)
         else:
+            _LOGGER.warning("Unsupported data foramt")
             data = r.text
             return data
 
     def __repr__(self):
-        return "[Data Client] Archiver Appliance on: {url}".format(url=self.url)
+        return f"[({self.format}) Data Client] hooked to Archiver Appliance at: {self._url_config[0]}"
 
 
 def normalize(data, tz='UTC'):
@@ -150,6 +157,7 @@ def normalize(data, tz='UTC'):
     meta = data[0]['meta']
     payloads = data[0]['data']
     if not payloads:
+        _LOGGER.warning("Hit empty payloads, return None.")
         return None
 
     payload0 = payloads[0]
@@ -172,6 +180,7 @@ def normalize(data, tz='UTC'):
     idx_utc = pd.to_datetime(df.index, unit='ms').tz_localize('UTC')
     if tz != 'UTC':
         df.index = idx_utc.tz_convert(tz)
+        _LOGGER.debug(f"Converted timezone from UTC to {tz}")
     else:
         df.index = idx_utc
     return df

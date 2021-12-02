@@ -13,9 +13,13 @@ from archappl.client import ArchiverDataClient
 from archappl.client import FRIBArchiverDataClient
 
 import argparse
+import logging
 import sys
 import os
 import json
+
+_LOGGER = logging.getLogger(__name__)
+
 
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
     pass
@@ -92,13 +96,17 @@ def main():
         pv_list = args.pv_list
     try:
         with open(args.pv_file, "r") as fp:
+            i = 0
             for line in fp:
                 if line.startswith("#"):
                     continue
                 if line.strip() not in pv_list:
                     pv_list.append(line.strip())
+                    i += 1
     except:
         pass
+    else:
+        _LOGGER.info(f"Read {i} PVs from '{args.pv_file}'")
     if pv_list == []:
         parser.print_help()
         sys.exit(1)
@@ -121,7 +129,8 @@ def main():
         if hasattr(dset, attr_fmt):
             if args.fmt == 'hdf':
                 args.fmt_args.setdefault('key', 'data')
+                _LOGGER.info("Set 'key' to 'data' if not assigned via '--format-args'")
             getattr(dset, attr_fmt)(output, **args.fmt_args)
         else:
-            print(f"{args.fmt}: no supported export function.")
+            _LOGGER.info(f"{args.fmt}: not supported export function.")
             sys.exit(1)

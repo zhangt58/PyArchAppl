@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import re
 from datetime import datetime
 
 from . import EPICSEvent_pb2 as pb
 
+
+_LOGGER = logging.getLogger(__name__)
 
 SAMPLE_PARSER_MAP = {
     'SCALAR_STRING': pb.ScalarString,
@@ -54,8 +57,6 @@ def unpack_raw_data(data: bytes):
 
         unescaped_line = unescape(line)
 
-        # print(f"Processing: {i:>04d}: {unescape(line)}")
-
         if hit_header:
             I = pb.PayloadInfo()
             I.ParseFromString(unescaped_line)
@@ -74,5 +75,5 @@ def unpack_raw_data(data: bytes):
                 'nanos': f.nano,
                 'status': f.status,
                 'severity': f.severity})
-    print(f"Processed {i} records.")
+    _LOGGER.debug(f"Processed {i} samples for {header_dict['name']}.")
     return [{'meta': header_dict, 'data': unpacked_data}]
