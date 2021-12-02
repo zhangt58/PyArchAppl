@@ -40,7 +40,7 @@ parser.add_argument('--to', dest='to_time',
 parser.add_argument('--resample', dest='resample', default=None,
         help="The offset string/object representing target conversion, e.g. '1S' for resample with 1 second")
 parser.add_argument('--verbose', '-v', action='count', default=0,
-        help="Verbosity level of the log output, 0: no output, 1(-v): output progress, 2(-vv): output progress with description")
+        help="Verbosity level of the log output, 0: no output, 1(-v): output progress, 2(-vv): output progress with description. Set env 'ARCHAPPL_LOG_LEVEL' for more output messages.")
 parser.add_argument('--version', action='store_true',
         help="Print out version info")
 parser.add_argument('-o', '--output', dest='output', default=None,
