@@ -5,11 +5,13 @@ import json
 from simplejson import JSONDecodeError
 import pandas as pd
 from .utils import LOCAL_ZONE_NAME
+from .pb import unpack_raw_data
 
 PAYLOAD_KEYS = ('val', 'status', 'severity')
 
 URL_DEFAULT = 'http://127.0.0.1:17665'
 JSON_HEADERS = {"Content-Type": "application/json"}
+DEFAULT_FMT = 'raw'
 
 
 class ArchiverDataClient(object):
@@ -18,21 +20,33 @@ class ArchiverDataClient(object):
     Parameters
     ----------
     url : str
-        Base url for data retrieval API, default is 'http://127.0.0.1:17665'.
+        Base url for data retrieval API (including port number if needed), default
+        is 'http://127.0.0.1:17665'.
+
+    Keyword Arguments
+    -----------------
+    format : str
+        The format of data to request, default is 'raw', could be 'json' as well,
+        this option only applies to the server side, does not alter the format of
+        the returned dataset.
     """
-    def __init__(self, url=None):
-        self._url_config = [URL_DEFAULT, '/retrieval/data/getData.', 'json']
+    def __init__(self, url=None, **kws):
+        self._url_config = [URL_DEFAULT, '/retrieval/data/getData.', DEFAULT_FMT]
         self.url = url
+        self.format = kws.get('format', None)
 
     @property
     def format(self):
-        """CSV, MAT, SVG, JSON, TXT, RAW.
+        """JSON, RAW.
         """
         return self._url_config[2]
 
     @format.setter
-    def format(self, fmt):
-        self._url_config[2] = fmt.lower()
+    def format(self, fmt=None):
+        if fmt is None:
+            self._url_config[2] = DEFAULT_FMT
+        else:
+            self._url_config[2] = fmt.lower()
 
     @property
     def url(self):
@@ -98,7 +112,12 @@ class ArchiverDataClient(object):
         url = self.url + '?' + '&'.join(p)
 
         r = requests.get(url)
-        if self.format == 'json':
+        if not r.ok:
+            return None
+        if self.format == 'raw':
+            data = unpack_raw_data(r.content)
+            return normalize(data, tz)
+        elif self.format == 'json':
             try:
                 data = r.json()
             except JSONDecodeError:
