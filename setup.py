@@ -6,6 +6,7 @@ install_requires = [
     'requests==2.24.0',
     'simplejson==3.16.0',
     'tqdm==4.47.0',
+    'protobuf==3.6.1',
 ]
 
 extra_require = {
@@ -29,6 +30,7 @@ setup(
         author_email='zhangt@frib.msu.edu',
         packages=['archappl.admin',
                   'archappl.data',
+                  'archappl.data.pb',
                   'archappl.client',
                   'archappl.contrib',
                   'archappl.scripts',
@@ -36,6 +38,7 @@ setup(
         package_dir={
             'archappl.admin': 'main/mgmt',
             'archappl.data' : 'main/data',
+            'archappl.data.pb' : 'main/data/pb',
             'archappl.client': 'main/client',
             'archappl.contrib': 'main/contrib',
             'archappl.scripts': 'main/scripts',
