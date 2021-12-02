@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-from functools import partial
+import logging
 import time
 import pandas as pd
+from datetime import datetime
+from functools import partial
 from archappl.client import FRIBArchiverDataClient
 from archappl.data.utils import LOCAL_ZONE_NAME
-from archappl import printlog
 from archappl import TQDM_INSTALLED
+
+_LOGGER = logging.getLogger(__name__)
+
 
 class HitSingleDataEntry(Exception):
     def __init__(self, *args, **kws):
@@ -27,11 +30,13 @@ def _get_data(pv, from_time, to_time, client=None):
     except AssertionError:
         # got nothing
         r, reason = None, "NotExist"
+        _LOGGER.error(f"Get nothing, probably {pv} is not archived")
     except HitSingleDataEntry:
         reason = "SingleEntry"
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
         r = data
+        _LOGGER.warning(f"Only get single sample for {pv}")
     else:
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
@@ -45,6 +50,7 @@ def _get_data_at_time(pv_list, at_time, client=None):
         client = FRIBArchiverDataClient
     data = client.get_data_at_time(pv_list, at_time)
     if data == {} or data is None:
+        _LOGGER.warning("Retrieved nothing")
         return None
     return data
 
@@ -103,6 +109,7 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
     df_list = []
+    _LOGGER.info("Start pulling data")
     if verbose != 0 and TQDM_INSTALLED:
         from archappl import tqdm
         pbar = tqdm(pv_list)
@@ -111,24 +118,27 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     for pv in pbar:
         data_, reason_ = _get_data(pv, from_time, to_time, client=client)
         if reason_ == 'NotExist':
-            print(f"Skip not being archived PV: {pv}")
+            _LOGGER.info(f"Skip not being archived PV: {pv}")
             if verbose > 1:
                 pbar.set_description(f"Skip {pv}")
             continue
         df_list.append(data_)
         if verbose > 1:
-            pbar.set_description(f"Fetched {pv}")
+            pbar.set_description(f"Fetched data for {pv}")
+            _LOGGER.debug(f"Fetched data for {pv}")
     if not df_list:
+        _LOGGER.warning("Get nothing, return None")
         return None
     data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
     if resample is not None:
+        _LOGGER.info(f"Apply resampling with '{resample}'")
         _df1 = data[from_time:to_time]
         _df2 = _df1[~_df1.index.duplicated(keep='first')]
         data = _df2.resample(resample).ffill()
         data.dropna(inplace=True)
     if verbose > 0:
-        printlog(f"Fetched all, time cost: {time.time() - t0_:.1f} seconds.")
+        _LOGGER.info(f"Fetched all data in {time.time() - t0_:.1f} seconds")
     return data
 
 
