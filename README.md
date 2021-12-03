@@ -1,12 +1,17 @@
 # pyarchappl
 
-Python interface for [Archiver Appliance](https://slacmshankar.github.io/epicsarchiver_docs/index.html).
+Python client for [Archiver Appliance](https://slacmshankar.github.io/epicsarchiver_docs/index.html).
 
 # Installation
 
-See [INSTALL.md](INSTALL.md)
+`pip install pyarchappl [--upgrade]`
 
-# How to test & develop
+# User Guide
+
+Command line tool ``pyarchappl-get`` is the best tool that could be used for
+data retrieval, read the usage help message by `-h` option.
+
+# Development
 
 ## [Optional] Set up Archiver Appliance testing environment
 
