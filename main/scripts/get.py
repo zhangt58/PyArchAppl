@@ -71,6 +71,13 @@ $ {n} --output data.csv -vv \\
   --pv-file pvlist.txt \\
   --from 2021-04-15T20:10:00.000Z --to 2021-04-15T21:25:00.000Z \\
 
+# Bypass log messages to a file
+$ {n} -vv --pv-file pvlist.txt \\
+  --from 2021-04-15T20:10:00.000Z --to 2021-04-15T21:25:00.000Z \\
+  --url http://127.0.0.1:17665 \\
+  --output data.csv \\
+  --log-file fetch.log
+
 # Time format:
   The following time strings with different timezones define the same time:
   2021-04-15T21:25:00.000Z (GMT)
