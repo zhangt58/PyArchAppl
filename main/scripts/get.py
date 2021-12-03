@@ -49,6 +49,8 @@ parser.add_argument('-f', '--output-format', dest='fmt', default='csv',
         help="File format for output data, supported: csv, hdf, excel, html, ...")
 parser.add_argument('--format-args', dest='fmt_args', type=json.loads, default='{}',
         help='''Additional arguments passed to data export function in the form of dict, e.g. '{"key":"data"}' (for hdf format)''')
+parser.add_argument('--log-file', dest='logfile', default=None,
+        help="File path for log messages, print to stdout if not defined.")
 
 parser.epilog = \
 """
@@ -84,16 +86,32 @@ def main():
         print(f"Current version of pyarchappl is: {__version__}")
         sys.exit(0)
 
+    # log file
+    if args.logfile is not None:
+        _handler = logging.FileHandler(args.logfile)
+        _fmt = logging.Formatter(
+                fmt="[%(asctime)s.%(msecs)03d] "
+                    "%(levelname)s: %(name)s: %(message)s",
+                datefmt="%Y%m%dT%H:%M:%S")
+        _handler.setFormatter(_fmt)
+        _LOGGER.parent.addHandler(_handler)
+        #
+        _LOGGER.info(f"Write log messages to {args.logfile}")
+
     # time range
     if args.from_time is None or args.to_time is None:
-        print("Arguments: --from and --to are required, see help with -h.")
+        _LOGGER.error(
+            "Arguments: --from and --to are required, see help with -h.")
         sys.exit(1)
+    else:
+        _LOGGER.info(f"Fetch data from {args.from_time} to {args.to_time}")
 
     # pv list
     if args.pv_list is None:
         pv_list = []
     else:
         pv_list = args.pv_list
+        _LOGGER.info(f"Defined {len(pv_list)} PVs via '--pv'")
     try:
         with open(args.pv_file, "r") as fp:
             i = 0
@@ -114,8 +132,10 @@ def main():
     # client
     if args.url is None:
         client = FRIBArchiverDataClient
+        _LOGGER.info("Connected to FRIB FTC Archiver Appliance")
     else:
         client = ArchiverDataClient(url=args.url)
+        _LOGGER.info(f"Connected to Archiver Appliance at {args.url}")
 
     from archappl.contrib import get_dataset_with_pvs
 
@@ -128,8 +148,9 @@ def main():
         attr_fmt = f"to_{args.fmt}"
         if hasattr(dset, attr_fmt):
             if args.fmt == 'hdf':
-                args.fmt_args.setdefault('key', 'data')
-                _LOGGER.info("Set 'key' to 'data' if not assigned via '--format-args'")
+                if 'key' not in args.fmt_args:
+                    args.fmt_args['key'] = 'data'
+                    _LOGGER.info("Set 'key' to 'data' by default for HDF format, see '--format-args'")
             getattr(dset, attr_fmt)(output, **args.fmt_args)
         else:
             _LOGGER.info(f"{args.fmt}: not supported export function.")
