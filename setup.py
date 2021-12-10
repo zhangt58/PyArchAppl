@@ -9,13 +9,13 @@ def readme():
 
 
 install_requires = [
-    'pandas==1.1.4',
-    'tzlocal==2.1',
-    'requests==2.24.0',
-    'simplejson==3.16.0',
-    'tqdm==4.47.0',
+    'pandas',
+    'tzlocal',
+    'requests',
+    'simplejson',
+    'tqdm',
+    'tables',
     'protobuf==3.6.1',
-    'tables==3.6.1',
 ]
 
 extra_require = {
@@ -34,7 +34,7 @@ def set_entry_points():
 
 setup(
     name='pyarchappl',
-    version='0.10.1-1',
+    version='0.10.1-2',
     description='Python interface to Archiver Appliance',
     long_description=readme(),
     long_description_content_type='text/markdown',
