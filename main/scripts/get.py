@@ -37,6 +37,8 @@ parser.add_argument('--from', dest='from_time',
         help="A string of begin time in ISO8601 format")
 parser.add_argument('--to', dest='to_time',
         help="A string of end time in ISO8601 format")
+parser.add_argument('--use-json', action='store_true',
+        help="Fetch data in the form of JSON")
 parser.add_argument('--resample', dest='resample', default=None,
         help="The offset string/object representing target conversion, e.g. '1S' for resample with 1 second")
 parser.add_argument('--verbose', '-v', action='count', default=0,
@@ -147,7 +149,8 @@ def main():
     from archappl.contrib import get_dataset_with_pvs
 
     dset = get_dataset_with_pvs(pv_list, args.from_time, args.to_time, client=client,
-                                resample=args.resample, verbose=args.verbose)
+                                resample=args.resample, verbose=args.verbose,
+                                use_json=args.use_json)
     output = args.output
     if output is None:
         print(dset.to_string())
