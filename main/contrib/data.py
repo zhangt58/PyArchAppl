@@ -17,9 +17,11 @@ class HitSingleDataEntry(Exception):
         super(self.__class__, self).__init__(*args, **kws)
 
 
-def _get_data(pv, from_time, to_time, client=None):
+def _get_data(pv, from_time, to_time, client=None, use_json=False):
     if client is None:
         client = FRIBArchiverDataClient
+    if use_json:
+        client.format = 'JSON'
     data = client.get_data(pv,
                            from_time=from_time,
                            to_time=to_time)
@@ -78,6 +80,8 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     verbose : int
         Verbosity level of the log output, default is 0, no output, 1, output progress, 2 output
         progress with description.
+    use_json : bool
+        If set True, fetch data in the form of JSON instead of RAW, default is False.
 
     Returns
     -------
@@ -108,6 +112,7 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     client = kws.pop('client', None)
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
+    use_json = kws.pop('use_json', False)
     df_list = []
     _LOGGER.info("Start pulling data")
     if verbose != 0 and TQDM_INSTALLED:
@@ -116,7 +121,8 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     else:
         pbar = pv_list
     for pv in pbar:
-        data_, reason_ = _get_data(pv, from_time, to_time, client=client)
+        data_, reason_ = _get_data(pv, from_time, to_time, client=client,
+                                   use_json=use_json)
         if reason_ == 'NotExist':
             _LOGGER.info(f"Skip not being archived PV: {pv}")
             if verbose > 1:
