@@ -1,3 +1,39 @@
+pyarchappl (0.10.2-1) unstable; urgency=medium
+
+  * BLD: Update depends.
+  * Merge tag 'upstream/0.10.2' into uc4
+  * MNT: Bump version to 0.10.2.
+  * REF: Add --use-json option to pyarchappl-get tool for swithing RAW to JSON.
+  * MNT: Clean up.
+  * MNT: Update name.
+  * MNT: Update dependencies versions.
+  * MNT: Bump version to 0.10.1-1.
+  * MNT: Complete setup.py for PyPI.
+  * MNT: Update dependencies.
+  * MNT: Bump version to 0.10.1.
+  * MNT: Update README.
+  * REF: Add an example for --log-file option.
+  * ENH: Add --log-file option to support write log messages to a file.
+  * REF: Update help message.
+  * ENH: Implemented logging system.
+  * MNT: Update package config for protobuf.
+  * MNT: Ignore .swp files.
+  * ENH: Support fetch data from RAW request API.
+  * ENH: Add function to decode google protobuf stream.
+  * FIX: Remove duplicated index before resampling.
+  * MNT: Bump version to 0.9.7.
+  * REF: Add --version to pyarchappl-get tool.
+  * MNT: Update warning message when --from or --to is missing.
+  * REF: Match time window with from_time to_time for resampling.
+  * MNT: Bump version to 0.9.6.
+  * MNT: Add an example for get_dataset_at_time_with_devices.
+  * REF: Add setpoint_alt_field_list keyword argument for handle CSET exception.
+  * ENH: get_dataset_with_devices() returns dataset of multi-level column of ename/fname.
+  * REF: Handle exception when no data return from data_at_time api.
+  * FIX: get_dataset() returns None if no data is retrieved, set from_time/to_time None as default.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Wed, 05 Jan 2022 14:58:34 -0500
+
 pyarchappl (0.9.5-1) unstable; urgency=medium
 
   * Merge tag 'upstream/0.9.5' into uc3
