@@ -1,17 +1,28 @@
+# -*- coding: utf-8 -*-
+
 from setuptools import setup
 
+
+def readme():
+    with open('README.md', 'r') as f:
+        return f.read()
+
+
 install_requires = [
-    'pandas==1.1.4',
-    'tzlocal==2.1',
-    'requests==2.24.0',
-    'simplejson==3.16.0',
-    'tqdm==4.47.0',
+    'pandas',
+    'tzlocal',
+    'requests',
+    'simplejson',
+    'tqdm',
+    'tables',
+    'protobuf==3.6.1',
 ]
 
 extra_require = {
     'test': ['pytest'],
     'doc': ['sphinx', 'pydata_sphinx_theme'],
 }
+
 
 def set_entry_points():
     r = {}
@@ -22,26 +33,35 @@ def set_entry_points():
 
 
 setup(
-        name='pyarchappl',
-        version='0.9.5',
-        description='Python interface to Archiver Appliance',
-        author='Tong Zhang',
-        author_email='zhangt@frib.msu.edu',
-        packages=['archappl.admin',
-                  'archappl.data',
-                  'archappl.client',
-                  'archappl.contrib',
-                  'archappl.scripts',
-                  'archappl'],
-        package_dir={
-            'archappl.admin': 'main/mgmt',
-            'archappl.data' : 'main/data',
-            'archappl.client': 'main/client',
-            'archappl.contrib': 'main/contrib',
-            'archappl.scripts': 'main/scripts',
-            'archappl': 'main'
-        },
-        entry_points=set_entry_points(),
-        install_requires=install_requires,
-        extra_require=extra_require,
+    name='pyarchappl',
+    version='0.10.2',
+    description='Python interface to Archiver Appliance',
+    long_description=readme(),
+    long_description_content_type='text/markdown',
+    url="https://github.com/archman/pyarchappl",
+    author='Tong Zhang',
+    author_email='zhangt@frib.msu.edu',
+    packages=[
+        'archappl.admin', 'archappl.data', 'archappl.data.pb',
+        'archappl.client', 'archappl.contrib', 'archappl.scripts', 'archappl'
+    ],
+    package_dir={
+        'archappl.admin': 'main/mgmt',
+        'archappl.data': 'main/data',
+        'archappl.data.pb': 'main/data/pb',
+        'archappl.client': 'main/client',
+        'archappl.contrib': 'main/contrib',
+        'archappl.scripts': 'main/scripts',
+        'archappl': 'main'
+    },
+    entry_points=set_entry_points(),
+    install_requires=install_requires,
+    extra_require=extra_require,
+    license='GPL3+',
+    keywords="Archiver EPICS CA PVA",
+    classifiers=[
+        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 )

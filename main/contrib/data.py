@@ -1,21 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+import logging
 import time
 import pandas as pd
+from datetime import datetime
+from functools import partial
 from archappl.client import FRIBArchiverDataClient
 from archappl.data.utils import LOCAL_ZONE_NAME
-from archappl import printlog
 from archappl import TQDM_INSTALLED
+
+_LOGGER = logging.getLogger(__name__)
+
 
 class HitSingleDataEntry(Exception):
     def __init__(self, *args, **kws):
         super(self.__class__, self).__init__(*args, **kws)
 
 
-def _get_data(pv, from_time, to_time, client=None):
+def _get_data(pv, from_time, to_time, client=None, use_json=False):
     if client is None:
         client = FRIBArchiverDataClient
+    if use_json:
+        client.format = 'JSON'
     data = client.get_data(pv,
                            from_time=from_time,
                            to_time=to_time)
@@ -26,11 +32,13 @@ def _get_data(pv, from_time, to_time, client=None):
     except AssertionError:
         # got nothing
         r, reason = None, "NotExist"
+        _LOGGER.error(f"Get nothing, probably {pv} is not archived")
     except HitSingleDataEntry:
         reason = "SingleEntry"
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
         r = data
+        _LOGGER.warning(f"Only get single sample for {pv}")
     else:
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
@@ -44,12 +52,14 @@ def _get_data_at_time(pv_list, at_time, client=None):
         client = FRIBArchiverDataClient
     data = client.get_data_at_time(pv_list, at_time)
     if data == {} or data is None:
+        _LOGGER.warning("Retrieved nothing")
         return None
     return data
 
 
-def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
+def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     """Pull data from Archiver Appliance, with a given list of PVs, within defined time slot.
+    Return None if no data is retrieved.
 
     Parameters
     ----------
@@ -70,11 +80,13 @@ def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
     verbose : int
         Verbosity level of the log output, default is 0, no output, 1, output progress, 2 output
         progress with description.
+    use_json : bool
+        If set True, fetch data in the form of JSON instead of RAW, default is False.
 
     Returns
     -------
     r : dataframe
-        Pandas dataframe with datetime as the index, and device PV names as columns
+        Pandas dataframe with datetime as the index, and device PV names as columns.
 
     See Also
     --------
@@ -96,38 +108,49 @@ def get_dataset_with_pvs(pv_list, from_time, to_time, **kws):
                                         resample="1S", verbose=2,
                                         client=data_client)
     """
-    t0 = time.time()
+    t0_ = time.time()
     client = kws.pop('client', None)
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
+    use_json = kws.pop('use_json', False)
     df_list = []
+    _LOGGER.info("Start pulling data")
     if verbose != 0 and TQDM_INSTALLED:
         from archappl import tqdm
         pbar = tqdm(pv_list)
     else:
         pbar = pv_list
     for pv in pbar:
-            data_, reason_ = _get_data(pv, from_time, to_time, client=client)
-            if reason_ == 'NotExist':
-                if verbose > 1:
-                    pbar.set_description(f"Skip {pv}")
-                continue
-            df_list.append(data_)
+        data_, reason_ = _get_data(pv, from_time, to_time, client=client,
+                                   use_json=use_json)
+        if reason_ == 'NotExist':
+            _LOGGER.info(f"Skip not being archived PV: {pv}")
             if verbose > 1:
-                pbar.set_description(f"Fetched {pv}")
+                pbar.set_description(f"Skip {pv}")
+            continue
+        df_list.append(data_)
+        if verbose > 1:
+            pbar.set_description(f"Fetched data for {pv}")
+            _LOGGER.debug(f"Fetched data for {pv}")
+    if not df_list:
+        _LOGGER.warning("Get nothing, return None")
+        return None
     data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
     if resample is not None:
-        data = data.resample(resample).ffill()
+        _LOGGER.info(f"Apply resampling with '{resample}'")
+        _df1 = data[from_time:to_time]
+        _df2 = _df1[~_df1.index.duplicated(keep='first')]
+        data = _df2.resample(resample).ffill()
         data.dropna(inplace=True)
     if verbose > 0:
-        printlog(f"Fetched all, time cost: {time.time() - t0:.1f} seconds.")
+        _LOGGER.info(f"Fetched all data in {time.time() - t0_:.1f} seconds")
     return data
 
 
-def get_dataset_with_devices(element_list, field_list, from_time, to_time, **kws):
+def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=None, **kws):
     """Pull data from Archiver Appliance, with a given list of devices and dynamic fields,
-    within defined time slot.
+    within defined time slot. Return None if no data is retrieved.
 
     Parameters
     ----------
@@ -157,7 +180,8 @@ def get_dataset_with_devices(element_list, field_list, from_time, to_time, **kws
     Returns
     -------
     r : dataframe
-        Pandas dataframe with datetime as the index, and device PV names as columns
+        Pandas dataframe with datetime as the index, and device names as 1st level columns, and
+        field names as 2nd level columns.
 
     See Also
     --------
@@ -186,7 +210,8 @@ def get_dataset_with_devices(element_list, field_list, from_time, to_time, **kws
     handle = kws.pop('handle', 'readback')
     pv_list = [i.pv(field=f, handle=handle)[0] for i in element_list
                 for f in field_list if i.pv(field=f, handle=handle) != []]
-    return get_dataset_with_pvs(pv_list, from_time, to_time, **kws)
+    _df = get_dataset_with_pvs(pv_list, from_time, to_time, **kws)
+    return _fieldize_df(_df, element_list, field_list, handle)
 
 
 def get_dataset_at_time_with_pvs(pv_list, at_time, **kws):
@@ -239,17 +264,29 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
         PV handle for field list, by default is 'readback', other options: 'setpoint'.
     tz : str
         Name of timezone for the returned index, default is local zone.
+    setpoint_alt_field_list : list
+        A list of field names, for each retrieve readset PVs if given handle is 'setpoint'.
 
     Returns
     -------
     r : dataframe
         Pandas dataframe.
+
+    Examples
+    --------
+    >>> # Pull the setpoint values from a list of element for each field defined in field_list,
+    >>> # use readset PVs for field defined in setpoint_alt_field_list argument.
+    >>> get_dataset_at_time_with_devices(element_list, field_list, t0, handle='setpoint',
+    >>>                                  setpoint_alt_field_list=['PHA', 'PHA1', 'PHA2', 'PHA3'])
     """
     handle = kws.pop('handle', 'readback')
     all_pv_list = []
     pv_list_per_element = []
     field_list_per_element = []
     elem_list = []
+
+    cset_alt_flist = kws.pop('setpoint_alt_field_list', [])
+    # ['PHA', 'PHA1', 'PHA2', 'PHA3']:
 
     for i in element_list:
         _pv_list = []
@@ -258,7 +295,14 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
             if f not in i.fields:
                 continue
             _field_list.append(f)
-            field_pv_list_ = i.pv(field=f, handle=handle)
+
+            # for CAV, retrieve RSET if asking for CSET
+            if handle == 'setpoint' and f in cset_alt_flist:
+                handle_ = 'readset'
+            else:
+                handle_ = handle
+            #
+            field_pv_list_ = i.pv(field=f, handle=handle_)
             _pv_list.append(field_pv_list_)
             all_pv_list.extend(field_pv_list_)
         if _field_list == []:
@@ -270,6 +314,18 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
     client = kws.pop('client', None)
     tz = kws.pop('tz', LOCAL_ZONE_NAME)
     data_ = _get_data_at_time(all_pv_list, at_time, client)
+
+    # map all CAV PHA? PVs from RSET to CSET, create new CSET keys
+    if cset_alt_flist:
+        for i in element_list:
+            # if i.family != 'CAV':
+            #     continue
+            for f in field_list:
+                if f not in i.fields:
+                    continue
+                if f in cset_alt_flist:
+                    data_[i.pv(field=f, handle='setpoint')[0]] = data_[i.pv(field=f, handle='readset')[0]]
+
     pv_val_dict = {k: v['val'] for k, v in data_.items()}
     fval_list = []  # list of element with field values
     for elem_, pv_list_, field_list_  in zip(elem_list, pv_list_per_element, field_list_per_element):
@@ -378,8 +434,24 @@ def _to_df_sm(dat, tz='UTC'):
     return df
 
 
+def _fieldize_df(df, elems, fnames, handle='setpoint'):
+    # transform dataframe of retrieved values with PV names as columns,
+    # to element/fname multilevel columns
+    #
+    def _f(elems, fnames, irow):
+        _d = irow.to_dict()
+        return [elem.get_settings(fname, _d, handle=handle) for elem in elems for fname in fnames]
+    data = df.apply(partial(_f, elems, fnames), axis=1).tolist()
+    df1 = pd.DataFrame(data=data, index=df.index)
+    cols = pd.MultiIndex.from_tuples([(elem.name, fname) for elem in elems for fname in fnames])
+    df1.columns = cols
+    return df1
+
+
 def _to_df(dat, tz='UTC'):
     # dataframrize dat (dict of {pv:{payload}}) from get_data_at_time().
+    if dat is None:
+        return None
     df = pd.DataFrame(columns=['PV', 'val', 'status', 'severity'])
     ms_list = []
     for i, (k, v) in enumerate(dat.items()):
@@ -390,6 +462,7 @@ def _to_df(dat, tz='UTC'):
         df['time'] = idx_utc.tz_convert(tz)
     else:
         df['time'] = idx_utc
+    df.set_index('PV', inplace=True)
     return df
 
 
