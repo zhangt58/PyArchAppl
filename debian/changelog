@@ -1,3 +1,12 @@
+pyarchappl (0.10.3-1) unstable; urgency=medium
+
+  * Merge tag 'upstream/0.10.3' into uc4
+  * MNT: Bump version to 0.10.3.
+  * REF: pyarchappl-get supports default --from and --to time range.
+  * REF: Return None if no data could be fetched.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Fri, 18 Mar 2022 13:25:05 -0400
+
 pyarchappl (0.10.2-1) unstable; urgency=medium
 
   * BLD: Update depends.
