@@ -211,6 +211,8 @@ def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=N
     pv_list = [i.pv(field=f, handle=handle)[0] for i in element_list
                 for f in field_list if i.pv(field=f, handle=handle) != []]
     _df = get_dataset_with_pvs(pv_list, from_time, to_time, **kws)
+    if _df is None:
+        return None
     return _fieldize_df(_df, element_list, field_list, handle)
 
 
