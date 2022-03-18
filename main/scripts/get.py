@@ -109,9 +109,9 @@ def main():
 
     # time range
     if args.from_time is None or args.to_time is None:
-        _LOGGER.error(
-            "Arguments: --from and --to are required, see help with -h.")
-        sys.exit(1)
+        _LOGGER.warning(
+            "Arguments: --from and/or --to is set with None, refer to -h for time range set.")
+        # sys.exit(1)
     else:
         _LOGGER.info(f"Fetch data from {args.from_time} to {args.to_time}")
 
