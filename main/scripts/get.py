@@ -153,7 +153,13 @@ def main():
                                 use_json=args.use_json)
     output = args.output
     if output is None:
-        print(dset.to_string())
+        try:
+            print(dset.to_string())
+            sys.stdout.flush()
+        except BrokenPipeError:
+            devnull = os.open(os.devnull, os.O_WRONLY)
+            os.dup2(devnull, sys.stdout.fileno())
+            sys.exit(1)
     else:
         attr_fmt = f"to_{args.fmt}"
         if hasattr(dset, attr_fmt):
