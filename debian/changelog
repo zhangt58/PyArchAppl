@@ -1,3 +1,14 @@
+pyarchappl (0.10.4-1) unstable; urgency=medium
+
+  * Merge tag 'upstream/0.10.4' into uc4
+  * MNT: Bump version to 0.10.4.
+  * BUG: Fix the exception when fetched data is [].
+  * Merge branch 'master' of github.com:archman/PyArchAppl
+  * MNT: Bump version to 0.10.3-1.
+  * FIX: BrokenPipeError.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Thu, 11 Aug 2022 15:29:25 -0400
+
 pyarchappl (0.10.3-1) unstable; urgency=medium
 
   * Merge tag 'upstream/0.10.3' into uc4
