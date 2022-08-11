@@ -32,7 +32,7 @@ def _get_data(pv, from_time, to_time, client=None, use_json=False):
     except AssertionError:
         # got nothing
         r, reason = None, "NotExist"
-        _LOGGER.error(f"Get nothing, probably {pv} is not archived")
+        _LOGGER.error(f"Got nothing, probably {pv} is not archived or no data in the given time range.")
     except HitSingleDataEntry:
         reason = "SingleEntry"
         data.drop(columns=['severity', 'status'], inplace=True)
