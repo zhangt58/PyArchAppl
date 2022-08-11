@@ -154,6 +154,9 @@ def normalize(data, tz='UTC'):
     r : DataFrame
         Pandas dataframe object.
     """
+    if len(data) == 0:
+        _LOGGER.warning("Hit empty data, return None.")
+        return None
     meta = data[0]['meta']
     payloads = data[0]['data']
     if not payloads:

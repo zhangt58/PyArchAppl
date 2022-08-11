@@ -15,7 +15,7 @@ install_requires = [
     'simplejson',
     'tqdm',
     'tables',
-    'protobuf==3.6.1',
+    'protobuf==3.15.0',
 ]
 
 extra_require = {
@@ -34,7 +34,7 @@ def set_entry_points():
 
 setup(
     name='pyarchappl',
-    version='0.10.3',
+    version='0.10.4',
     description='Python interface to Archiver Appliance',
     long_description=readme(),
     long_description_content_type='text/markdown',
