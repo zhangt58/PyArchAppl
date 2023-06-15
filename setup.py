@@ -10,7 +10,7 @@ def readme():
 
 install_requires = [
     'pandas',
-    'tzlocal',
+    'tzlocal==2.1',
     'requests',
     'simplejson',
     'tqdm',
