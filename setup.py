@@ -15,7 +15,7 @@ install_requires = [
     'simplejson==3.18.3',
     'tqdm==4.64.1',
     'tables==3.7.0',
-    'protobuf==3.21.12',
+    'protobuf==3.20.3',
 ]
 
 extra_require = {
