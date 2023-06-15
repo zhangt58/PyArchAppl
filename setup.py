@@ -11,7 +11,7 @@ def readme():
 install_requires = [
     'pandas==1.5.3',
     'tzlocal==4.2',
-    'requests==2.28.1',
+    'requests==2.31.0',
     'simplejson==3.18.3',
     'tqdm==4.64.1',
     'tables==3.7.0',
