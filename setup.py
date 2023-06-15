@@ -9,13 +9,13 @@ def readme():
 
 
 install_requires = [
-    'pandas',
-    'tzlocal==2.1',
-    'requests',
-    'simplejson',
-    'tqdm',
-    'tables',
-    'protobuf==3.15.0',
+    'pandas==1.5.3',
+    'tzlocal==4.2',
+    'requests==2.28.1',
+    'simplejson==3.18.3',
+    'tqdm==4.64.1',
+    'tables==3.7.0',
+    'protobuf==3.21.12',
 ]
 
 extra_require = {
