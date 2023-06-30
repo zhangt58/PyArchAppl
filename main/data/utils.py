@@ -10,7 +10,7 @@ import tzlocal
 
 TS_FMT = "%Y-%m-%dT%H:%M:%S.%f"
 LOCAL_ZONE = tzlocal.get_localzone()
-LOCAL_ZONE_NAME = LOCAL_ZONE.zone # America/New_York
+LOCAL_ZONE_NAME = str(LOCAL_ZONE) # America/New_York
 
 DatetimeTuple = namedtuple('DatetimeTuple',
         ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
