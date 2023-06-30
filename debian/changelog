@@ -1,3 +1,12 @@
+pyarchappl (0.10.5-1) unstable; urgency=medium
+
+  * Merge tag 'upstream/0.10.5' into uc5
+  * MNT: Bump version to 0.10.5.
+  * FIX: Restrict tzlocal version.
+  * FIX: API changes for zone name retrieval in new tzlocal versions.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Fri, 30 Jun 2023 13:46:23 -0400
+
 pyarchappl (0.10.4-1) unstable; urgency=medium
 
   * Merge tag 'upstream/0.10.4' into uc4
