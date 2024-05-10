@@ -13,8 +13,7 @@ LOCAL_ZONE = tzlocal.get_localzone()
 LOCAL_ZONE_NAME = str(LOCAL_ZONE) # America/New_York
 
 DatetimeTuple = namedtuple('DatetimeTuple',
-        ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
-        defaults=[1970, 1, 1, 0, 0, 0, 0])
+        ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'])
 
 
 def standardize_datetime(date_time, time_zone=None):
