@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-20.04", "ubuntu-22.04"]
-        py: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        py: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
         exclude:
           - os: "ubuntu-22.04"
             py: "3.6"
@@ -50,6 +50,13 @@ jobs:
     name: Publish GitHub Pages
     needs: build
     steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.10
     - name: Build documentation
       run: |
         pip install sphinx pydata_sphinx_theme
@@ -64,12 +71,22 @@ jobs:
         BRANCH: gh-pages
         FOLDER: doc/build/html
         CLEAN: true
-  
+
   package:
     runs-on: ubuntu-latest
     name: Release packages to PyPI
     needs: build
     steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.10
+    - name: Build wheel
+      run: |
+        python setup bdist_wheel
     - name: Publish package to PyPI
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@v1.4.1
