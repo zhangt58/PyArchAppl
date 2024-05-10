@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from collections import namedtuple
 from datetime import datetime
 import dateutil.relativedelta as relativedelta
 import pytz
@@ -12,8 +11,17 @@ TS_FMT = "%Y-%m-%dT%H:%M:%S.%f"
 LOCAL_ZONE = tzlocal.get_localzone()
 LOCAL_ZONE_NAME = str(LOCAL_ZONE) # America/New_York
 
-DatetimeTuple = namedtuple('DatetimeTuple',
-        ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'])
+
+class DatetimeTuple:
+    def __init__(self, year: int = 1970, month: int = 1, day: int = 1,
+                 hour: int = 0, minute: int = 0, second: int = 0, millisecond: int = 0):
+        self.year = year
+        self.month = month
+        self.day = day
+        self.hour = hour
+        self.minute = minute
+        self.second = second
+        self.millisecond = millisecond
 
 
 def standardize_datetime(date_time, time_zone=None):
