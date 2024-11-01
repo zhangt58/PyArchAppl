@@ -1,0 +1,63 @@
+# -*- coding: utf-8 -*-
+
+from archappl.client import ArchiverMgmtClient
+
+
+def test_getApplianceInfo(get_local_mgmt_client: ArchiverMgmtClient,
+                          get_local_appliance_info: dict):
+    r = get_local_mgmt_client.get_appliance_info()
+    assert r == get_local_appliance_info
+
+
+def test_getAllPVs(get_local_mgmt_client: ArchiverMgmtClient,
+                   get_local_pvs: dict):
+    pv = get_local_pvs['TST_archived'][0]
+    r = get_local_mgmt_client.get_all_pvs(pv=pv)
+    assert r == [pv]
+
+    pv = get_local_pvs['Invalid']
+    r = get_local_mgmt_client.get_all_pvs(pv=pv)
+    assert len(r) == 0
+
+    r = get_local_mgmt_client.get_all_pvs(pv="TST*")
+    # only two TST pvs are being archived
+    assert len(r) == 2
+
+    r = get_local_mgmt_client.get_all_pvs(pv="TST*", limit=1)
+    assert len(r) == 1
+    assert r[0] == 'TST:fakeGaussianNoise'  # alphabetically, it is showing before TST:uniformNoise
+
+
+def test_getPVStatus(get_local_mgmt_client: ArchiverMgmtClient,
+                     get_local_pvs: dict):
+    pv1 = get_local_pvs['TST_archived'][0]
+    r1 = get_local_mgmt_client.get_pv_status(pv=pv1)
+    assert len(r1) == 1
+    assert r1[pv1].pvName == pv1
+    assert r1[pv1].status == "Being archived"
+
+    r2 = get_local_mgmt_client.get_pv_status(pv="TST*")
+    assert len(r2) == 2
+
+    pv2 = get_local_pvs['Invalid']
+    r3 = get_local_mgmt_client.get_pv_status(pv=pv2)
+    assert len(r3) == 1
+    assert r3[pv2].pvName == pv2
+    assert r3[pv2].status == "Not being archived"
+
+    r4 = get_local_mgmt_client.get_pv_status(pv=[pv1, pv2])
+    assert r4[pv1] == r1[pv1]
+    assert r4[pv2] == r3[pv2]
+
+
+def test_get_pv_type_info(get_local_mgmt_client: ArchiverMgmtClient,
+                          get_local_pvs: dict):
+    pv1 = get_local_pvs['TST_archived'][0]
+    r1 = get_local_mgmt_client.get_pv_type_info(pv=pv1)
+    assert r1.pvName == pv1
+
+    pv2 = get_local_pvs['Invalid']
+    r2 = get_local_mgmt_client.get_pv_type_info(pv=pv2)
+    assert r2 is None
+
+
