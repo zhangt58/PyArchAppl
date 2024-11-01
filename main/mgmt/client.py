@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
-import json
+import pandas as pd
 from typing import Union
 from types import SimpleNamespace
 
@@ -117,7 +117,7 @@ class ArchiverMgmtClient(object):
         else:
             return None
 
-    def get_pv_details(self, pv: str) -> Union[list[dict], None]:
+    def get_pv_details(self, pv: str) -> Union[pd.DataFrame, None]:
         """ Get the details of a PV.
 
         Parameters
@@ -127,13 +127,13 @@ class ArchiverMgmtClient(object):
 
         Returns
         -------
-        r : list[dict] or None
+        r : pd.DataFrame or None
             PV details or None.
         """
         url = self.url + '/getPVDetails'
         r = requests.get(url + '?pv={}'.format(pv))
         if r.ok:
-            return r.json()
+            return pd.DataFrame.from_records(r.json(), index=['source', 'name'])
         else:
             return None
 
