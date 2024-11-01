@@ -100,6 +100,11 @@ class ArchiverMgmtClient(object):
         In the archiver appliance terminology, the *PVTypeInfo* contains the
         various archiving parameters for a PV.
 
+        Parameters
+        ----------
+        pv : str
+            A PV name.
+
         Returns
         -------
         r : SimpleNamespace or None
@@ -112,6 +117,25 @@ class ArchiverMgmtClient(object):
         else:
             return None
 
+    def get_pv_details(self, pv: str) -> Union[list[dict], None]:
+        """ Get the details of a PV.
+
+        Parameters
+        ----------
+        pv : str
+            A PV name.
+
+        Returns
+        -------
+        r : list[dict] or None
+            PV details or None.
+        """
+        url = self.url + '/getPVDetails'
+        r = requests.get(url + '?pv={}'.format(pv))
+        if r.ok:
+            return r.json()
+        else:
+            return None
 
     def archive_pv(self, pv: Union[str, list[str]], op: str = None, **kws):
         """Archive operations for one or more PVs.
