@@ -67,7 +67,8 @@ def test_get_pv_details(get_local_mgmt_client: ArchiverMgmtClient,
                         get_local_pvs: dict):
     pv1 = get_local_pvs['TST_archived'][0]
     r1 = get_local_mgmt_client.get_pv_details(pv=pv1)
-    assert r1[0]['value'] == pv1
+    assert r1.loc[("pv", "Channel Name"), "value"] == pv1
+    assert r1.loc[("mgmt", "PV Name"), "value"] == pv1
 
     pv2 = get_local_pvs['Invalid']
     r2 = get_local_mgmt_client.get_pv_details(pv=pv2)
