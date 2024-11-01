@@ -45,6 +45,8 @@ def test_getPVStatus(get_local_mgmt_client: ArchiverMgmtClient,
     assert r3[pv2].pvName == pv2
     assert r3[pv2].status == "Not being archived"
 
+    r1 = get_local_mgmt_client.get_pv_status(pv=pv1)
+    r3 = get_local_mgmt_client.get_pv_status(pv=pv2)
     r4 = get_local_mgmt_client.get_pv_status(pv=[pv1, pv2])
     assert r4[pv1] == r1[pv1]
     assert r4[pv2] == r3[pv2]
@@ -58,6 +60,17 @@ def test_get_pv_type_info(get_local_mgmt_client: ArchiverMgmtClient,
 
     pv2 = get_local_pvs['Invalid']
     r2 = get_local_mgmt_client.get_pv_type_info(pv=pv2)
+    assert r2 is None
+
+
+def test_get_pv_details(get_local_mgmt_client: ArchiverMgmtClient,
+                        get_local_pvs: dict):
+    pv1 = get_local_pvs['TST_archived'][0]
+    r1 = get_local_mgmt_client.get_pv_details(pv=pv1)
+    assert r1[0]['value'] == pv1
+
+    pv2 = get_local_pvs['Invalid']
+    r2 = get_local_mgmt_client.get_pv_details(pv=pv2)
     assert r2 is None
 
 
