@@ -5,8 +5,7 @@ import pandas as pd
 from typing import Union
 from types import SimpleNamespace
 
-
-URL_DEFAULT = 'http://127.0.0.1:17665'
+from archappl.config import SITE_ADMIN_URL
 
 
 class ArchiverMgmtClient(object):
@@ -15,22 +14,25 @@ class ArchiverMgmtClient(object):
     Parameters
     ----------
     url : str
-        Base url of BPL, default is `http://127.0.0.1:17665`,
+        Base url of BPL, defaults the one defined in config.ini file:
+        1. ~/.pyarchappl/config.ini
+        2. /etc/pyarchappl/config.ini
+        otherwise, fallbacks to one deployed with the package.
     """
-    def __init__(self, url=None):
-        self._url_config = [URL_DEFAULT, '/mgmt/bpl']
+    def __init__(self, url: Union[str, None] = None):
+        self._url_config = [SITE_ADMIN_URL, '/mgmt/bpl']
         self.url = url
 
     @property
     def url(self):
-        """URL of archiver appliance (management).
+        """str: URL of archiver appliance (management).
         """
         return ''.join(self._url_config)
     
     @url.setter
-    def url(self, url):
+    def url(self, url: Union[str, None]):
         if url is None:
-            self._url_config[0] = URL_DEFAULT
+            self._url_config[0] = SITE_ADMIN_URL
         else:
             self._url_config[0] = url
 

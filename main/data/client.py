@@ -3,16 +3,18 @@
 import logging
 import requests
 import json
+from typing import Union
 from simplejson import JSONDecodeError
 import pandas as pd
 from .utils import LOCAL_ZONE_NAME
 from .pb import unpack_raw_data
 
+from archappl.config import SITE_DATA_URL
+
 _LOGGER = logging.getLogger(__name__)
 
 PAYLOAD_KEYS = ('val', 'status', 'severity')
 
-URL_DEFAULT = 'http://127.0.0.1:17665'
 JSON_HEADERS = {"Content-Type": "application/json"}
 DEFAULT_FMT = 'raw'
 
@@ -23,8 +25,11 @@ class ArchiverDataClient(object):
     Parameters
     ----------
     url : str
-        Base url for data retrieval API (including port number if needed), default
-        is 'http://127.0.0.1:17665'.
+        Base url for data retrieval API (including port number if applicable), defaults the one
+        defined in config.ini file:
+        1. ~/.pyarchappl/config.ini
+        2. /etc/pyarchappl/config.ini
+        otherwise, fallbacks to one deployed with the package.
 
     Keyword Arguments
     -----------------
@@ -33,8 +38,8 @@ class ArchiverDataClient(object):
         this option only applies to the server side, does not alter the format of
         the returned dataset.
     """
-    def __init__(self, url=None, **kws):
-        self._url_config = [URL_DEFAULT, '/retrieval/data/getData.', DEFAULT_FMT]
+    def __init__(self, url: Union[str, None] = None, **kws):
+        self._url_config = [SITE_DATA_URL , '/retrieval/data/getData.', DEFAULT_FMT]
         self.url = url
         self.format = kws.get('format', None)
         _LOGGER.debug(f"URL of data client is: {self.url}")
@@ -58,9 +63,9 @@ class ArchiverDataClient(object):
         return ''.join(self._url_config)
 
     @url.setter
-    def url(self, url):
+    def url(self, url: Union[str, None]):
         if url is None:
-            self._url_config[0] = URL_DEFAULT
+            self._url_config[0] = SITE_DATA_URL
         else:
             self._url_config[0] = url
 
