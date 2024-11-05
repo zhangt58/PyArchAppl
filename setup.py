@@ -25,10 +25,11 @@ extra_require = {
 
 
 def set_entry_points():
-    r = {}
-    r['console_scripts'] = [
-        'pyarchappl-get=archappl.scripts.get:main',
-    ]
+    r = {
+        'console_scripts': [
+            'pyarchappl-get=archappl.scripts.get:main',
+        ]
+    }
     return r
 
 
@@ -43,7 +44,8 @@ setup(
     author_email='zhangt@frib.msu.edu',
     packages=[
         'archappl.admin', 'archappl.data', 'archappl.data.pb',
-        'archappl.client', 'archappl.contrib', 'archappl.scripts', 'archappl'
+        'archappl.client', 'archappl.contrib', 'archappl.config',
+        'archappl.scripts', 'archappl'
     ],
     package_dir={
         'archappl.admin': 'main/mgmt',
@@ -51,9 +53,11 @@ setup(
         'archappl.data.pb': 'main/data/pb',
         'archappl.client': 'main/client',
         'archappl.contrib': 'main/contrib',
+        'archappl.config': 'main/config',
         'archappl.scripts': 'main/scripts',
         'archappl': 'main'
     },
+    include_package_data=True,
     entry_points=set_entry_points(),
     install_requires=install_requires,
     extra_require=extra_require,
