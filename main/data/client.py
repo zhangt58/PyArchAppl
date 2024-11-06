@@ -120,7 +120,7 @@ class ArchiverDataClient(object):
 
         r = requests.get(url)
         if not r.ok:
-            _LOGGER.error(f"Failed to get data, error code {r.status_code}")
+            _LOGGER.error(f"Fetched data error: {r.status_code}")
             return None
         if self.format == 'raw':
             data = unpack_raw_data(r.content)
@@ -133,7 +133,7 @@ class ArchiverDataClient(object):
             else:
                 return normalize(data, tz)
         else:
-            _LOGGER.warning("Unsupported data foramt")
+            _LOGGER.warning("Unsupported data format")
             data = r.text
             return data
 

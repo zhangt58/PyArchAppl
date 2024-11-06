@@ -28,13 +28,13 @@ def _get_data(pv: str, from_time: str, to_time: str, client: ArchiverDataClient)
     except AssertionError:
         # got nothing
         r, reason = None, "NotExist"
-        _LOGGER.error(f"Got nothing, probably '{pv}' is not being archived or no data in the given time range.")
+        _LOGGER.error(f"Got nothing, either '{pv}' is not being archived or no data in the given time range.")
     except HitSingleDataEntry:
         reason = "SingleEntry"
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
         r = data
-        _LOGGER.warning(f"Only get single sample for '{pv}'")
+        _LOGGER.warning(f"Only got a single sample for '{pv}'")
     else:
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
@@ -112,7 +112,7 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
     if kws.pop('use_json', False):
         client.format = "json"
     df_list = []
-    _LOGGER.info("Start pulling data")
+    _LOGGER.info("Started fetching data...")
     if verbose != 0 and TQDM_INSTALLED:
         from archappl import tqdm
         pbar = tqdm(pv_list)
@@ -130,7 +130,7 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
             pbar.set_description(f"Fetched data for '{pv}'")
             _LOGGER.debug(f"Fetched data for '{pv}'")
     if not df_list:
-        _LOGGER.warning("Get nothing, return None")
+        _LOGGER.warning("Got nothing, return None")
         return None
     data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
