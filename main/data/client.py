@@ -9,14 +9,11 @@ import pandas as pd
 from .utils import LOCAL_ZONE_NAME
 from .pb import unpack_raw_data
 
-from archappl.config import SITE_DATA_URL
+from archappl.config import SITE_DATA_URL, SITE_DATA_FORMAT
 
 _LOGGER = logging.getLogger(__name__)
-
 PAYLOAD_KEYS = ('val', 'status', 'severity')
-
 JSON_HEADERS = {"Content-Type": "application/json"}
-DEFAULT_FMT = 'raw'
 
 
 class ArchiverDataClient(object):
@@ -34,12 +31,12 @@ class ArchiverDataClient(object):
     Keyword Arguments
     -----------------
     format : str
-        The format of data to request, default is 'raw', could be 'json' as well,
-        this option only applies to the server side, does not alter the format of
-        the returned dataset.
+        The format of data to request, defaults to `data_format` defined in config file,
+        could be 'raw' or 'json'. This option only applies to requests to the server, does not
+        alter the format of the returned dataset.
     """
     def __init__(self, url: Union[str, None] = None, **kws):
-        self._url_config = [SITE_DATA_URL , '/retrieval/data/getData.', DEFAULT_FMT]
+        self._url_config = [SITE_DATA_URL , '/retrieval/data/getData.', SITE_DATA_FORMAT]
         self.url = url
         self.format = kws.get('format', None)
         _LOGGER.debug(f"URL of data client is: {self.url}")
@@ -47,14 +44,14 @@ class ArchiverDataClient(object):
 
     @property
     def format(self):
-        """JSON, RAW.
+        """str : Define how the data returned from the request, in 'json' or 'raw'.
         """
         return self._url_config[2]
 
     @format.setter
-    def format(self, fmt=None):
+    def format(self, fmt: Union[str, None]):
         if fmt is None:
-            self._url_config[2] = DEFAULT_FMT
+            self._url_config[2] = SITE_DATA_FORMAT
         else:
             self._url_config[2] = fmt.lower()
 
@@ -70,7 +67,7 @@ class ArchiverDataClient(object):
             self._url_config[0] = url
 
     def get_data_at_time(self, pv_list, at_time):
-        """Get data at timestampe defined by *at_time* for list of PVs defined
+        """Get data at timestamp defined by *at_time* for list of PVs defined
         by *pv_list*.
         """
         p = ['at={}'.format(at_time)]
