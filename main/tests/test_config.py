@@ -1,5 +1,8 @@
+import os
 from pathlib import Path
 from archappl.config import read_config
+from archappl.config import get_config_path
+from archappl.config import ENV_CONFIG_PATH_NAME
 
 
 def test_config_full(config_dir: Path):
@@ -25,4 +28,10 @@ def test_config_pkg_default(config_dir: Path):
     conf_filename_ = Path(conf_.pop('path')).name
     assert conf_filename == conf_filename_
     assert conf == conf_
+
+
+def test_config_path_env(config_dir: Path):
+    os.environ[ENV_CONFIG_PATH_NAME] = config_dir.joinpath("full.ini").as_posix()
+    config_file = get_config_path()
+    assert config_file == config_dir.joinpath("full.ini")
 
