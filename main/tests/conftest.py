@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+from pathlib import Path
 from archappl.client import ArchiverMgmtClient
 from archappl.client import ArchiverDataClient
-
 
 @pytest.fixture
 def get_local_mgmt_client() -> ArchiverMgmtClient:
@@ -40,3 +40,6 @@ def get_local_pvs() -> dict:
         'Invalid': pv4,
     }
 
+@pytest.fixture
+def config_dir() -> Path:
+    return Path(__file__).parent.joinpath("config")
