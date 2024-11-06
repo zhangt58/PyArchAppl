@@ -8,7 +8,6 @@ $ pyarchappl-get --verbose 1 --pv VA:LS1_CA01:BPM_D1129:X_RD --pv VA:LS1_CA01:BP
                  --from-time 2021-04-15T20:10:00.000Z --to-time 2021-04-15T21:25:00.000Z
                  --resample 1min --url http://127.0.0.1:17665
 """
-
 from archappl.client import ArchiverDataClient
 
 import argparse
@@ -150,6 +149,9 @@ def main():
 
     dset = get_dataset_with_pvs(pv_list, args.from_time, args.to_time, client=client,
                                 resample=args.resample, verbose=args.verbose)
+    if dset is None:
+        _LOGGER.warning("No data to output.")
+        sys.exit(1)
     output = args.output
     if output is None:
         try:
