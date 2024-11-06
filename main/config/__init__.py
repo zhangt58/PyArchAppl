@@ -76,3 +76,4 @@ if 'data_port' in SITE_SERVER_CONFIG:
 else:
     SITE_DATA_URL = f"{SITE_SERVER_CONFIG['url']}"
 
+SITE_DATA_FORMAT: str = SITE_SERVER_CONFIG.get('data_format', 'raw')
