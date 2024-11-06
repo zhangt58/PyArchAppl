@@ -5,11 +5,12 @@ import time
 import pandas as pd
 from datetime import datetime
 from functools import partial
-from archappl.client import FRIBArchiverDataClient
+from archappl.client import ArchiverDataClient
 from archappl.data.utils import LOCAL_ZONE_NAME
 from archappl import TQDM_INSTALLED
 
 _LOGGER = logging.getLogger(__name__)
+SITE_DATA_CLIENT = ArchiverDataClient()
 
 
 class HitSingleDataEntry(Exception):
@@ -19,7 +20,7 @@ class HitSingleDataEntry(Exception):
 
 def _get_data(pv, from_time, to_time, client=None, use_json=False):
     if client is None:
-        client = FRIBArchiverDataClient
+        client = SITE_DATA_CLIENT
     if use_json:
         client.format = 'JSON'
     data = client.get_data(pv,
@@ -49,7 +50,7 @@ def _get_data(pv, from_time, to_time, client=None, use_json=False):
 
 def _get_data_at_time(pv_list, at_time, client=None):
     if client is None:
-        client = FRIBArchiverDataClient
+        client = SITE_DATA_CLIENT
     data = client.get_data_at_time(pv_list, at_time)
     if data == {} or data is None:
         _LOGGER.warning("Retrieved nothing")
@@ -73,7 +74,7 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+        ArchiverDataClient instance, defaults to the one defined by the site config file.
     resample : str
         The offset string or object representing target conversion, e.g. resample with 1 second
         offset could be defined as '1S'.
@@ -167,7 +168,7 @@ def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=N
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+        ArchiverDataClient instance, defaults to the one defined by the site config file.
     resample : str
         The offset string or object representing target conversion, e.g. resample with 1 second
         offset could be defined as '1S'.
@@ -229,7 +230,7 @@ def get_dataset_at_time_with_pvs(pv_list, at_time, **kws):
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+        ArchiverDataClient instance, defaults to the one defined by the site config file.
     tz : str
         Name of timezone for the returned index, default is local zone.
 
@@ -261,7 +262,7 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+        ArchiverDataClient instance, defaults to the one defined by the site config file.
     handle : str
         PV handle for field list, by default is 'readback', other options: 'setpoint'.
     tz : str
@@ -352,7 +353,7 @@ def _get_ion_info(t):
     pv_ion_number = "FE_ISRC1:BEAM:Z_BOOK"
     pv_ion_name = "FE_ISRC1:BEAM:ELMT_BOOK"
     pv_list = [pv_ion_mass, pv_ion_charge, pv_ion_number, pv_ion_name]
-    return get_dataset_at_time_with_pvs(pv_list, t, client=FRIBArchiverDataClient)
+    return get_dataset_at_time_with_pvs(pv_list, t, client=SITE_DATA_CLIENT)
 
 
 def export_as_settings_manager_datafile(df, filepath, **kws):
