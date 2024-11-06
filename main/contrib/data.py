@@ -3,6 +3,7 @@
 import logging
 import time
 import pandas as pd
+from typing import Union
 from datetime import datetime
 from functools import partial
 from archappl.client import ArchiverDataClient
@@ -18,14 +19,8 @@ class HitSingleDataEntry(Exception):
         super(self.__class__, self).__init__(*args, **kws)
 
 
-def _get_data(pv, from_time, to_time, client=None, use_json=False):
-    if client is None:
-        client = SITE_DATA_CLIENT
-    if use_json:
-        client.format = 'JSON'
-    data = client.get_data(pv,
-                           from_time=from_time,
-                           to_time=to_time)
+def _get_data(pv: str, from_time: str, to_time: str, client: ArchiverDataClient):
+    data = client.get_data(pv, from_time=from_time, to_time=to_time)
     try:
         assert data is not None
         if len(data.iloc[:,0]) == 1:
@@ -33,13 +28,13 @@ def _get_data(pv, from_time, to_time, client=None, use_json=False):
     except AssertionError:
         # got nothing
         r, reason = None, "NotExist"
-        _LOGGER.error(f"Got nothing, probably {pv} is not archived or no data in the given time range.")
+        _LOGGER.error(f"Got nothing, probably '{pv}' is not being archived or no data in the given time range.")
     except HitSingleDataEntry:
         reason = "SingleEntry"
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
         r = data
-        _LOGGER.warning(f"Only get single sample for {pv}")
+        _LOGGER.warning(f"Only get single sample for '{pv}'")
     else:
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
@@ -58,13 +53,14 @@ def _get_data_at_time(pv_list, at_time, client=None):
     return data
 
 
-def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
+def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
+                         to_time: Union[str, None] = None, **kws):
     """Pull data from Archiver Appliance, with a given list of PVs, within defined time slot.
     Return None if no data is retrieved.
 
     Parameters
     ----------
-    pv_list : list
+    pv_list : list[str]
         A list of process variables.
     from_time : str
         A string of start time of the data in ISO8601 format.
@@ -110,10 +106,11 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
                                         client=data_client)
     """
     t0_ = time.time()
-    client = kws.pop('client', None)
+    client = kws.pop('client', ArchiverDataClient())
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
-    use_json = kws.pop('use_json', False)
+    if kws.pop('use_json', False):
+        client.format = "json"
     df_list = []
     _LOGGER.info("Start pulling data")
     if verbose != 0 and TQDM_INSTALLED:
@@ -122,17 +119,16 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     else:
         pbar = pv_list
     for pv in pbar:
-        data_, reason_ = _get_data(pv, from_time, to_time, client=client,
-                                   use_json=use_json)
+        data_, reason_ = _get_data(pv, from_time, to_time, client=client)
         if reason_ == 'NotExist':
-            _LOGGER.info(f"Skip not being archived PV: {pv}")
+            _LOGGER.info(f"Skip PV: '{pv}'")
             if verbose > 1:
-                pbar.set_description(f"Skip {pv}")
+                pbar.set_description(f"Skip '{pv}'")
             continue
         df_list.append(data_)
         if verbose > 1:
-            pbar.set_description(f"Fetched data for {pv}")
-            _LOGGER.debug(f"Fetched data for {pv}")
+            pbar.set_description(f"Fetched data for '{pv}'")
+            _LOGGER.debug(f"Fetched data for '{pv}'")
     if not df_list:
         _LOGGER.warning("Get nothing, return None")
         return None

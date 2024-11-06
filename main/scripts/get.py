@@ -27,7 +27,7 @@ parser = argparse.ArgumentParser(
         description="Retrieve data from Archiver Appliance and export as a file.",
         formatter_class=Formatter)
 parser.add_argument('--url', dest='url', default=None,
-        help="URL of Archiver Appliance, default is FRIB FTC archiver")
+        help="URL of Archiver Appliance, defaults to the one defined in site configuration file.")
 parser.add_argument('--pv', action='append', dest='pv_list',
         help="List of PVs for retrieval, each define with --pv")
 parser.add_argument('--pv-file', dest='pv_file', default=None,
@@ -109,7 +109,7 @@ def main():
     # time range
     if args.from_time is None or args.to_time is None:
         _LOGGER.warning(
-            "Arguments: --from and/or --to is set with None, refer to -h for time range set.")
+            "Arguments: --from and/or --to is not set, refer to -h for time range set.")
         # sys.exit(1)
     else:
         _LOGGER.info(f"Fetch data from {args.from_time} to {args.to_time}")
@@ -133,7 +133,7 @@ def main():
         pass
     else:
         _LOGGER.info(f"Read {i} PVs from '{args.pv_file}'")
-    if pv_list == []:
+    if not pv_list:
         parser.print_help()
         sys.exit(1)
 
@@ -142,13 +142,14 @@ def main():
         client = ArchiverDataClient()
     else:
         client = ArchiverDataClient(url=args.url)
-    _LOGGER.info(f"Connected to Archiver Appliance at {client.url}")
+    if args.use_json:
+        client.format = "json"
+    _LOGGER.info(f"{client}")
 
     from archappl.contrib import get_dataset_with_pvs
 
     dset = get_dataset_with_pvs(pv_list, args.from_time, args.to_time, client=client,
-                                resample=args.resample, verbose=args.verbose,
-                                use_json=args.use_json)
+                                resample=args.resample, verbose=args.verbose)
     output = args.output
     if output is None:
         try:
