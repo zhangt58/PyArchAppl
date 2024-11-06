@@ -25,13 +25,6 @@ def dformat_(*args, **kws):
     return t
 
 
-FRIBArchiverDataClient = ArchiverDataClient(
-    "http://epicsarchiver1.ftc:17668")
-
-ReAArchiverDataClient = ArchiverDataClient(
-    "http://rea-epicsarch.frib.msu.edu")
-
-
 __all__ = [
     "iso_to_epoch", "epoch_to_iso",
     "parse_dt",

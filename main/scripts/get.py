@@ -10,7 +10,6 @@ $ pyarchappl-get --verbose 1 --pv VA:LS1_CA01:BPM_D1129:X_RD --pv VA:LS1_CA01:BP
 """
 
 from archappl.client import ArchiverDataClient
-from archappl.client import FRIBArchiverDataClient
 
 import argparse
 import logging
@@ -140,11 +139,10 @@ def main():
 
     # client
     if args.url is None:
-        client = FRIBArchiverDataClient
-        _LOGGER.info("Connected to FRIB FTC Archiver Appliance")
+        client = ArchiverDataClient()
     else:
         client = ArchiverDataClient(url=args.url)
-        _LOGGER.info(f"Connected to Archiver Appliance at {args.url}")
+    _LOGGER.info(f"Connected to Archiver Appliance at {client.url}")
 
     from archappl.contrib import get_dataset_with_pvs
 
