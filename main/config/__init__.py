@@ -1,8 +1,12 @@
 import configparser
+import os
 from pathlib import Path
 from typing import Union
 
 _cwdir = Path(__file__).parent
+
+# the environment variable for the site configuration file, highest priority.
+ENV_CONFIG_PATH_NAME = "PYARCHAPPL_CONFIG_FILE"
 
 
 def read_config(config_file: Union[Path, None] = None) -> dict:
@@ -47,6 +51,7 @@ def read_config(config_file: Union[Path, None] = None) -> dict:
 def get_config_path() -> Path:
     """ Return the configuration file path, searching priority:
 
+    0. env: PYARCHAPPL_CONFIG_FILE
     1. ~/.pyarchappl/config.ini
     2. /etc/pyarchappl/config.ini
     3. <package-dir>/config/default.ini
@@ -56,6 +61,9 @@ def get_config_path() -> Path:
     pth : Path
         The path of the configuration file.
     """
+    env_config_path = os.environ.get(ENV_CONFIG_PATH_NAME, None)
+    if env_config_path is not None:
+        return Path(env_config_path).expanduser()
     if Path("~/.pyarchappl/config.ini").expanduser().is_file():
         return Path("~/.pyarchappl/config.ini").expanduser()
     elif Path("/etc/pyarchappl/config.ini").is_file():
