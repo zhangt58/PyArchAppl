@@ -2,11 +2,11 @@
 
 import pytest
 from pathlib import Path
-from archappl.client import ArchiverMgmtClient
 from archappl.client import ArchiverDataClient
 
 @pytest.fixture
-def get_local_mgmt_client() -> ArchiverMgmtClient:
+def get_local_mgmt_client():
+    from archappl.client import ArchiverMgmtClient
     return ArchiverMgmtClient(url="http://127.0.0.1:17666")
 
 
