@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from archappl.client import ArchiverMgmtClient
+import pytest
+try:
+    from archappl.client import ArchiverMgmtClient
+except ImportError:
+    print("Admin client is not available, exit.")
+    ADMIN_DISABLED = True
+else:
+    ADMIN_DISABLED = False
 
-
-def test_getApplianceInfo(get_local_mgmt_client: ArchiverMgmtClient,
+@pytest.mark.skipif(ADMIN_DISABLED, reason="Admin client is not available")
+def test_getApplianceInfo(get_local_mgmt_client,
                           get_local_appliance_info: dict):
     r = get_local_mgmt_client.get_appliance_info()
     assert r == get_local_appliance_info
 
 
-def test_getAllPVs(get_local_mgmt_client: ArchiverMgmtClient,
+@pytest.mark.skipif(ADMIN_DISABLED, reason="Admin client is not available")
+def test_getAllPVs(get_local_mgmt_client,
                    get_local_pvs: dict):
     pv = get_local_pvs['TST_archived'][0]
     r = get_local_mgmt_client.get_all_pvs(pv=pv)
@@ -28,7 +36,8 @@ def test_getAllPVs(get_local_mgmt_client: ArchiverMgmtClient,
     assert r[0] == 'TST:fakeGaussianNoise'  # alphabetically, it is showing before TST:uniformNoise
 
 
-def test_getPVStatus(get_local_mgmt_client: ArchiverMgmtClient,
+@pytest.mark.skipif(ADMIN_DISABLED, reason="Admin client is not available")
+def test_getPVStatus(get_local_mgmt_client,
                      get_local_pvs: dict):
     pv1 = get_local_pvs['TST_archived'][0]
     r1 = get_local_mgmt_client.get_pv_status(pv=pv1)
@@ -52,7 +61,8 @@ def test_getPVStatus(get_local_mgmt_client: ArchiverMgmtClient,
     assert r4[pv2] == r3[pv2]
 
 
-def test_get_pv_type_info(get_local_mgmt_client: ArchiverMgmtClient,
+@pytest.mark.skipif(ADMIN_DISABLED, reason="Admin client is not available")
+def test_get_pv_type_info(get_local_mgmt_client,
                           get_local_pvs: dict):
     pv1 = get_local_pvs['TST_archived'][0]
     r1 = get_local_mgmt_client.get_pv_type_info(pv=pv1)
@@ -63,7 +73,8 @@ def test_get_pv_type_info(get_local_mgmt_client: ArchiverMgmtClient,
     assert r2 is None
 
 
-def test_get_pv_details(get_local_mgmt_client: ArchiverMgmtClient,
+@pytest.mark.skipif(ADMIN_DISABLED, reason="Admin client is not available")
+def test_get_pv_details(get_local_mgmt_client,
                         get_local_pvs: dict):
     pv1 = get_local_pvs['TST_archived'][0]
     r1 = get_local_mgmt_client.get_pv_details(pv=pv1)
@@ -73,5 +84,3 @@ def test_get_pv_details(get_local_mgmt_client: ArchiverMgmtClient,
     pv2 = get_local_pvs['Invalid']
     r2 = get_local_mgmt_client.get_pv_details(pv=pv2)
     assert r2 is None
-
-

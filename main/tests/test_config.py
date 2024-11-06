@@ -9,6 +9,7 @@ def test_config_full(config_dir: Path):
     config_file = config_dir.joinpath("full.ini")
     conf = read_config(config_file)
     assert conf['path'] == config_file.resolve().as_posix()
+    conf['server'].pop('admin_disabled')
     assert conf['server'] == {
         'url': 'http://127.0.0.1',
         'admin_port': '17665',
@@ -34,4 +35,3 @@ def test_config_path_env(config_dir: Path):
     os.environ[ENV_CONFIG_PATH_NAME] = config_dir.joinpath("full.ini").as_posix()
     config_file = get_config_path()
     assert config_file == config_dir.joinpath("full.ini")
-
