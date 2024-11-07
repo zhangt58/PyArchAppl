@@ -9,6 +9,7 @@ $ pyarchappl-get --verbose 1 --pv VA:LS1_CA01:BPM_D1129:X_RD --pv VA:LS1_CA01:BP
                  --resample 1min --url http://127.0.0.1:17665
 """
 from archappl.client import ArchiverDataClient
+from archappl.contrib import get_dataset_with_pvs
 
 import argparse
 import logging
@@ -51,6 +52,8 @@ parser.add_argument('--format-args', dest='fmt_args', type=json.loads, default='
         help='''Additional arguments passed to data export function in the form of dict, e.g. '{"key":"data"}' (for hdf format)''')
 parser.add_argument('--log-file', dest='logfile', default=None,
         help="File path for log messages, print to stdout if not defined.")
+parser.add_argument('--last-n', '-n', dest='last_n', type=int, default=0,
+                    help="Define the maximum number of most recent samples for each PV.")
 
 parser.epilog = \
 """
@@ -145,10 +148,9 @@ def main():
         client.format = "json"
     _LOGGER.info(f"{client}")
 
-    from archappl.contrib import get_dataset_with_pvs
-
     dset = get_dataset_with_pvs(pv_list, args.from_time, args.to_time, client=client,
-                                resample=args.resample, verbose=args.verbose)
+                                resample=args.resample, verbose=args.verbose,
+                                last_n=args.last_n)
     if dset is None:
         _LOGGER.warning("No data to output.")
         sys.exit(1)
