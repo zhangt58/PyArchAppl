@@ -85,36 +85,39 @@ class ArchiverDataClient(object):
         finally:
             return ret
 
-    def get_data(self, pv, **kws):
-        """Retrieve data from Archive Appliance, return as `pandas.DataFrame`.
+    def get_data(self, pv: str, **kws) -> Union[pd.DataFrame, None]:
+        """Retrieve data from Archive Appliance as a `pandas.DataFrame`.
 
         Parameters
         ----------
         pv : str
-            PV name.
+            A string of PV name.
 
         Keyword Arguments
         -----------------
         from_time : str
-            A string of start time of the data in ISO8601 format.
+            A string of start time of the dataset in ISO8601 format.
         to_time : str
-            A string of end time of the data in ISO8601 format.
+            A string of end time of the dataset in ISO8601 format.
         tz : str
-            Name of timezone for the returned index, default is local zone.
+            The timezone name for the returned dataframe index, defaults to the local zone.
+        last_n : int
+            Limit the number of data rows to the defined integer, defaults to 0, return all.
 
         Returns
         -------
-        r : DataFrame
-            Dataframe with the index of timestamp.
+        r : pd.DataFrame
+            A pandas dataframe with the timestamp as the index.
         """
-        ifrom = kws.get('from_time', None)
-        ito = kws.get('to_time', None)
+        from_time = kws.get('from_time', None)
+        to_time = kws.get('to_time', None)
+        last_n = kws.get('last_n', 0)
         tz = kws.get('tz', LOCAL_ZONE_NAME)
         p = ['pv={}'.format(pv)]
-        if ifrom is not None:
-            p.append('from={}'.format(ifrom))
-        if ito is not None:
-            p.append('to={}'.format(ito))
+        if from_time is not None:
+            p.append('from={}'.format(from_time))
+        if to_time is not None:
+            p.append('to={}'.format(to_time))
 
         url = self.url + '?' + '&'.join(p)
 
@@ -123,38 +126,35 @@ class ArchiverDataClient(object):
             _LOGGER.error(f"Fetched data error: {r.status_code}")
             return None
         if self.format == 'raw':
-            data = unpack_raw_data(r.content)
-            return normalize(data, tz)
-        elif self.format == 'json':
+            return normalize(unpack_raw_data(r.content), tz, last_n=last_n)
+        else:  # json
             try:
-                data = r.json()
+                data_ = r.json()
             except JSONDecodeError:
                 return None
             else:
-                return normalize(data, tz)
-        else:
-            _LOGGER.warning("Unsupported data format")
-            data = r.text
-            return data
+                return normalize(data_, tz, last_n=last_n)
 
     def __repr__(self):
         return f"[({self.format}) Data Client] hooked to Archiver Appliance at: {self._url_config[0]}"
 
 
-def normalize(data, tz='UTC'):
+def normalize(data: list[dict], tz: str = 'UTC', **kws) -> Union[pd.DataFrame, None]:
     """Normalize data as pandas.DataFrame.
 
     Parameters
     ----------
     data : list
-        List of dict from data client.
+        A list of dict of data returned from the data client.
     tz : str
         String of timezone, e.g. 'US/Eastern', see also: `pytz.all_timezones`.
+    last_n : int
+        Limit the number of data rows to the defined integer, defaults to 0, return all.
 
     Returns
     -------
-    r : DataFrame
-        Pandas dataframe object.
+    r : pd.DataFrame
+        A pandas dataframe with timestamp as the index, 'val', 'status', 'severity' as columns.
     """
     if len(data) == 0:
         _LOGGER.warning("Hit empty data, return None.")
@@ -165,22 +165,19 @@ def normalize(data, tz='UTC'):
         _LOGGER.warning("Hit empty payloads, return None.")
         return None
 
-    payload0 = payloads[0]
-    other_val_keys = PAYLOAD_KEYS #[k for k in payload0 if k not in ('secs', 'nanos')]
+    last_n = kws.get('last_n', 0)
+    other_val_keys = PAYLOAD_KEYS
     ts_list = []
-    val_list = []
     other_val_dict = dict()
 
-    for d in payloads:
-        ts_list.append(int((d['secs'] + d['nanos']/1e9)*1e3))
+    for d in payloads[-last_n:]:
+        ts_list.append(int((d['secs'] + d['nanos'] / 1e9) * 1e3))
         for k in other_val_keys:
             other_val_dict.setdefault(k, []).append(d[k])
 
-    df = pd.DataFrame()
+    df = pd.DataFrame.from_dict(other_val_dict)
     df['time'] = ts_list
     df.set_index('time', inplace=True)
-    for k in other_val_keys:
-        df[k] = other_val_dict[k]
 
     idx_utc = pd.to_datetime(df.index, unit='ms').tz_localize('UTC')
     if tz != 'UTC':
