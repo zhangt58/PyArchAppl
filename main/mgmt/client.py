@@ -139,13 +139,16 @@ class ArchiverMgmtClient(object):
         else:
             return None
 
-    def archive_pv(self, pv: Union[str, list[str]], op: str = None, **kws):
-        """Archive operations for one or more PVs.
+    def archive_pv(self, pv: str, op: str = None, **kws):
+        """Archive operations for one PV.
+
+        Note that it supports archive multiple PVs through a single API request, but
+        here we do not explicitly do that.
 
         Parameters
         ----------
-        pv : str or List(str)
-            Name of PVs (list) to be operated.
+        pv : str
+            One PV name to be operated.
         op : str
             Specific archive operation:
             * 'archive' (default): start to archive.
