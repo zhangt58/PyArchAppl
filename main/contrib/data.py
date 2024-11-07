@@ -19,13 +19,20 @@ class HitSingleDataEntry(Exception):
         super(self.__class__, self).__init__(*args, **kws)
 
 
-def _get_data(pv: str, from_time: str, to_time: str, client: ArchiverDataClient):
-    data = client.get_data(pv, from_time=from_time, to_time=to_time)
+class HitEmptyDataset(Exception):
+    def __init__(self, *args, **kws):
+        super(self.__class__, self).__init__(*args, **kws)
+
+
+def _get_data(pv: str, from_time: str, to_time: str,
+              client: ArchiverDataClient, **kws) -> tuple[Union[pd.DataFrame, None], str]:
+    data = client.get_data(pv, from_time=from_time, to_time=to_time, **kws)
     try:
-        assert data is not None
-        if len(data.iloc[:,0]) == 1:
+        if data is None:
+            raise HitEmptyDataset
+        if data.index.size == 1:
             raise HitSingleDataEntry
-    except AssertionError:
+    except HitEmptyDataset:
         # got nothing
         r, reason = None, "NotExist"
         _LOGGER.error(f"Got nothing, either '{pv}' is not being archived or no data in the given time range.")
@@ -39,8 +46,7 @@ def _get_data(pv: str, from_time: str, to_time: str, client: ArchiverDataClient)
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
         r, reason = data, "OK"
-    finally:
-        return r, reason
+    return r, reason
 
 
 def _get_data_at_time(pv_list, at_time, client=None):
@@ -70,7 +76,7 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, defaults to the one defined by the site config file.
+        An ArchiverDataClient instance, defaults to the one defined by the site config file.
     resample : str
         The offset string or object representing target conversion, e.g. resample with 1 second
         offset could be defined as '1S'.
@@ -79,6 +85,8 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
         progress with description.
     use_json : bool
         If set True, fetch data in the form of JSON instead of RAW, default is False.
+    last_n : int
+        Limit the number of data rows to the defined integer, defaults to 0, return all.
 
     Returns
     -------
@@ -109,6 +117,7 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
     client = kws.pop('client', ArchiverDataClient())
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
+    last_n = kws.get('last_n', 0)
     if kws.pop('use_json', False):
         client.format = "json"
     df_list = []
@@ -119,7 +128,7 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
     else:
         pbar = pv_list
     for pv in pbar:
-        data_, reason_ = _get_data(pv, from_time, to_time, client=client)
+        data_, reason_ = _get_data(pv, from_time, to_time, client=client, last_n=last_n)
         if reason_ == 'NotExist':
             _LOGGER.info(f"Skip PV: '{pv}'")
             if verbose > 1:
