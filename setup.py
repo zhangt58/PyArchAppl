@@ -9,7 +9,9 @@ def readme():
 
 
 install_requires = [
+    'numpy>=1.0,<2.0',
     'pandas>=1.0,<2.0',
+    'openpyxl>3.0,<3.1',
     'tzlocal>=4.0,<5.0',
     'requests>=2.0,<3.0',
     'simplejson>=3.0,<4.0',
@@ -28,6 +30,7 @@ def set_entry_points():
     r = {
         'console_scripts': [
             'pyarchappl-get=archappl.scripts.get:main',
+            'pyarchappl-inspect=archappl.scripts.inspect:main',
         ]
     }
     return r
