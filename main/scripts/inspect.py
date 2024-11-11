@@ -8,6 +8,7 @@ import logging
 import sys
 import pandas as pd
 from pathlib import Path
+from typing import Union
 
 from .utils import SimpleNamespaceEncoder
 
@@ -80,7 +81,7 @@ def main():
         _handler.setFormatter(_fmt)
         _LOGGER.parent.addHandler(_handler)
         #
-        _LOGGER.info(f"Write log messages to {args.logfile}")
+        _LOGGER.info(f"Writing log messages to {args.logfile}")
 
     # client
     if args.url is None:
@@ -130,12 +131,12 @@ def main():
     if args.key == "status":
         r = client.get_pv_status(pv_list)
         s = _get_json_with_subkeys(r, sub_keys)
-        print(s)
+        _print_json(s, args.output)
     elif args.key == "type":
         r_ = {pv: client.get_pv_type_info(pv) for pv in pv_list}
         r = {k: v for k, v in r_.items() if v is not None}
         s = _get_json_with_subkeys(r, sub_keys)
-        print(s)
+        _print_json(s, args.output)
     elif args.key == "details":
         if args.output is not None:
             if Path(args.output).suffix != ".xlsx":
@@ -147,7 +148,7 @@ def main():
             xlsx_file = None
         r = [(pv, client.get_pv_details(pv)) for pv in pv_list]
         if xlsx_file is not None:
-            _LOGGER.info("Write details to xlsx file ...")
+            _LOGGER.info(f"Writing details to '{xlsx_file}' ...")
             _write_details_to_excel(xlsx_file, r)
         else:
             print(r)
@@ -155,7 +156,7 @@ def main():
         r_ = {pv: client.get_stores_for_pv(pv) for pv in pv_list}
         r = {k: v for k, v in r_.items() if v is not None}
         s = _get_json_with_subkeys(r, sub_keys)
-        print(s)
+        _print_json(s, args.output)
 
 
 def _write_details_to_excel(output_path: str, r: list):
@@ -178,3 +179,13 @@ def _get_json_with_subkeys(d: dict, sub_keys: list[str], indent: int = 2) -> str
         return json.dumps(d1, indent=indent)
     else:
         return s
+
+
+def _print_json(s: str, outfile: Union[str, None] = None):
+    if outfile is not None:
+        _LOGGER.info(f"Writing output to '{outfile}' ...")
+        with open(outfile, "w") as fp:
+            fp.write(s)
+    else:
+        _LOGGER.info("Printing output ...")
+        print(s, end="", file=sys.stdout)
