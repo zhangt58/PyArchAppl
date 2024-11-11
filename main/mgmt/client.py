@@ -194,11 +194,25 @@ class ArchiverMgmtClient(object):
             kparams.update(kws)
         return requests.get(url + _make_params(kparams)).json()
 
-    def get_stores_for_pv(self, pv):
+    def get_stores_for_pv(self, pv: str) -> Union[SimpleNamespace, None]:
         """ Gets the names of the data stores for this PV.
+
+        Parameters
+        ----------
+        pv : str
+            A PV name.
+
+        Returns
+        -------
+        r : SimpleNamespace or None
+            PV type info or None.
         """
         url = self.url + '/getStoresForPV' 
-        return requests.get(url + '?pv={}'.format(pv)).json()
+        r = requests.get(url + '?pv={}'.format(pv))
+        if r.ok:
+            return SimpleNamespace(**r.json())
+        else:
+            return None
 
     # def delete_pv(self, pv, delete_data=False):
     #     """ Stop archiving the specified PV. The PV needs to be paused first.
