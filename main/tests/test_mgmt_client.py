@@ -28,12 +28,13 @@ def test_getAllPVs(get_local_mgmt_client,
     assert len(r) == 0
 
     r = get_local_mgmt_client.get_all_pvs(pv="TST*")
-    # only two TST pvs are being archived
-    assert len(r) == 2
+    # only two three pvs are being archived
+    assert len(r) == 3
 
-    r = get_local_mgmt_client.get_all_pvs(pv="TST*", limit=1)
-    assert len(r) == 1
-    assert r[0] == 'TST:fakeGaussianNoise'  # alphabetically, it is showing before TST:uniformNoise
+    r = get_local_mgmt_client.get_all_pvs(pv="TST*", limit=2)
+    assert len(r) == 2
+    assert r[0] == 'TST:constant'  # alphabetically
+    assert r[1] == 'TST:fakeGaussianNoise'  # alphabetically, it is showing before TST:uniformNoise
 
 
 @pytest.mark.skipif(ADMIN_DISABLED, reason="Admin client is not available")
@@ -46,7 +47,7 @@ def test_getPVStatus(get_local_mgmt_client,
     assert r1[pv1].status == "Being archived"
 
     r2 = get_local_mgmt_client.get_pv_status(pv="TST*")
-    assert len(r2) == 2
+    assert len(r2) == 3
 
     pv2 = get_local_pvs['Invalid']
     r3 = get_local_mgmt_client.get_pv_status(pv=pv2)
