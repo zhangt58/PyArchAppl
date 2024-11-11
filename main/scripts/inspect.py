@@ -24,7 +24,7 @@ import argparse
 import json
 import os
 
-VALID_INFO_KEYS = ('status', 'type', 'details', 'stores', 'info')
+VALID_INFO_KEYS = ('status', 'type', 'details', 'stores')
 
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
     pass
@@ -40,11 +40,13 @@ parser.add_argument('--pv', action='append', dest='pv_list',
 parser.add_argument('--pv-file', dest='pv_file', default=None,
         help="A file for PVs, one PV per line (skip lines start with #), append each to pv_list")
 parser.add_argument('--key', dest='key', default='status',
-        help="Define the kind of information to inspect: 'status' (default), 'type', 'info', 'details', 'stores'")
+        help="Define the kind of information to inspect: 'status' (default), 'type', 'details', 'stores'")
 parser.add_argument('--sub-keys', dest='sub_keys', default=None,
                     help="Define the sub-level keys separated with ',' to inspect if applicable.")
 parser.add_argument('--version', action='store_true',
                     help="Print out version info")
+parser.add_argument('--info', action='store_true',
+                    help="Print out the info of archiver appliance")
 parser.add_argument('--log-file', dest='logfile', default=None,
                     help="File path for log messages, print to stdout if not defined.")
 parser.add_argument('-o', '--output', dest='output', default=None,
@@ -53,12 +55,13 @@ parser.add_argument('-o', '--output', dest='output', default=None,
 parser.epilog = \
 """
 Examples:
-# Inspect if a PV is being archived or not
-$ {n} --key info
-$ {n} --pv TST:constant
-$ {n} --pv TST:constant --pv TST:NONEXIST --sub-keys status,pvName
-$ {n} --pv TST:uniformNoise
-
+# Check if a PV is being archived or not
+$ {n} --pv TST:constant # --key status
+$ {n} --pv TST:constant --pv TST:NONEXIST --sub-keys pvName,status
+# Replace --key with "type", "details", "stores" to have different results
+# Output the results to a file
+$ {n} --pv TST:constant --pv TST:uniformNoise --key details --output details.xlsx
+$ {n} --pv TST:constant --pv TST:uniformNoise --key type --output type.json
 """.format(n=os.path.basename(sys.argv[0]))
 
 
@@ -90,7 +93,7 @@ def main():
         client = ArchiverMgmtClient(url=args.url)
 
     # Archiver Appliance info
-    if args.key == "info":
+    if args.info:
         _LOGGER.info("Getting Archiver Appliance info...")
         print(json.dumps(client.get_appliance_info(), indent=2))
         sys.exit(0)
