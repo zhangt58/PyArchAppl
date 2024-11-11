@@ -23,7 +23,7 @@ import argparse
 import json
 import os
 
-VALID_INFO_KEYS = ('status', 'type', 'details', 'store', 'info')
+VALID_INFO_KEYS = ('status', 'type', 'details', 'stores', 'info')
 
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
     pass
@@ -39,7 +39,7 @@ parser.add_argument('--pv', action='append', dest='pv_list',
 parser.add_argument('--pv-file', dest='pv_file', default=None,
         help="A file for PVs, one PV per line (skip lines start with #), append each to pv_list")
 parser.add_argument('--key', dest='key', default='status',
-        help="Define the kind of information to inspect: 'status' (default), 'type', 'info', 'details', 'store'")
+        help="Define the kind of information to inspect: 'status' (default), 'type', 'info', 'details', 'stores'")
 parser.add_argument('--sub-keys', dest='sub_keys', default=None,
                     help="Define the sub-level keys separated with ',' to inspect if applicable.")
 parser.add_argument('--version', action='store_true',
@@ -151,6 +151,11 @@ def main():
             _write_details_to_excel(xlsx_file, r)
         else:
             print(r)
+    elif args.key == "stores":
+        r_ = {pv: client.get_stores_for_pv(pv) for pv in pv_list}
+        r = {k: v for k, v in r_.items() if v is not None}
+        s = _get_json_with_subkeys(r, sub_keys)
+        print(s)
 
 
 def _write_details_to_excel(output_path: str, r: list):
