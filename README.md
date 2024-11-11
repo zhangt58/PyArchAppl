@@ -1,6 +1,11 @@
 # PyArchAppl
+![PyPI - Version](https://img.shields.io/pypi/v/PyArchAppl)
+![PyPI - License](https://img.shields.io/pypi/l/PyArchAppl)
+![Static Badge](https://img.shields.io/badge/Python-3.9-blue)
+![Static Badge](https://img.shields.io/badge/Python-3.10-blue)
+![Static Badge](https://img.shields.io/badge/Python-3.11-blue)
 
-Python client for [Archiver Appliance](https://slacmshankar.github.io/epicsarchiver_docs/index.html).
+The Python client library for [Archiver Appliance](https://slacmshankar.github.io/epicsarchiver_docs/index.html).
 
 # Installation
 
