@@ -1,34 +1,10 @@
 # PyArchAppl
 
-![PyPI - Version](https://img.shields.io/pypi/v/PyArchAppl)
-![PyPI - License](https://img.shields.io/pypi/l/PyArchAppl)
-![Static Badge](https://img.shields.io/badge/Python-3.9-blue)
-![Static Badge](https://img.shields.io/badge/Python-3.10-blue)
-![Static Badge](https://img.shields.io/badge/Python-3.11-blue)
-
-The Python client library for [Archiver Appliance](https://github.com/archiver-appliance/epicsarchiverap)
-
-# Installation
-
-`pip install pyarchappl [--upgrade]`
-
-# User Guide
-
-## Site Configuration
-
-A site configuration file is an INI file which defines how the package work with the service.
-The full version of the configuration file could be found at [default.ini](./main/config/default.ini)
-
-The search priority follows:
-1. `~/.pyarchappl/config.ini`
-
-# PyArchAppl
-
 [![PyPI - Version](https://img.shields.io/pypi/v/PyArchAppl)](https://pypi.org/project/PyArchAppl/)
 [![PyPI - License](https://img.shields.io/pypi/l/PyArchAppl)](./LICENSE)
 ![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue)
 
-**PyArchAppl** is a Python client library for the [EPICS Archiver Appliance](https://slacmshankar.github.io/epicsarchiver_docs/index.html), providing easy data access, management, and automation for control system data.
+**PyArchAppl** is a Python client library for the [EPICS Archiver Appliance](https://github.com/archiver-appliance/epicsarchiverap), providing easy data access, management, and automation for control system data.
 
 ---
 
@@ -128,6 +104,6 @@ This project is licensed under the GPLv3+ License. See the [LICENSE](./LICENSE) 
 
 ## Links
 
-- [Documentation](doc/getting-started/pyarchappl.ipynb)
-- [Archiver Appliance Docs](https://slacmshankar.github.io/epicsarchiver_docs/index.html)
+- [Documentation](https://zhangt58.github.io/PyArchAppl/)
+- [Archiver Appliance Docs](https://epicsarchiver.readthedocs.io/en/latest/)
 - [PyPI Project](https://pypi.org/project/PyArchAppl/)
