@@ -13,6 +13,8 @@ def read_requires(filepath: str) -> list[str]:
     lines = []
     for line in open(filepath, "r"):
         lines.append(line.strip())
+    return lines
+
 
 py_ver = (sys.version_info.major, sys.version_info.minor)
 if py_ver in [(3, 9), (3, 10), (3, 11)]:
