@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
 from setuptools import setup
 
 
@@ -16,13 +15,18 @@ def read_requires(filepath: str) -> list[str]:
     return lines
 
 
-py_ver = (sys.version_info.major, sys.version_info.minor)
-if py_ver in [(3, 9), (3, 10), (3, 11)]:
-    install_requires = read_requires("requirements.txt")
-elif py_ver in [(3, 12), (3, 13)]:
-    install_requires = read_requires("requirements-3.13.txt")
-else:
-    install_requires = []
+install_requires = [
+    "numpy",
+    "pandas",
+    "openpyxl",
+    "tqdm",
+    "tzlocal",
+    "requests",
+    "simplejson",
+    "tables",
+    "protobuf>=3.0,<4.0",
+    "setuptools",
+]
 
 
 extras_require = {
@@ -66,6 +70,7 @@ setup(
     },
     include_package_data=True,
     entry_points=set_entry_points(),
+    python_requires=">=3.9",
     install_requires=install_requires,
     extras_require=extras_require,
     license='GPL3+',
