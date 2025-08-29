@@ -10,8 +10,17 @@ jobs:
     name: Build and Test
     strategy:
       matrix:
-        os: ["ubuntu-22.04"]
-        py: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        include:
+          - os: ubuntu-22.04
+            py: "3.9"
+          - os: ubuntu-22.04
+            py: "3.10"
+          - os: ubuntu-22.04
+            py: "3.11"
+          - os: ubuntu-24.04
+            py: "3.12"
+          - os: ubuntu-24.04
+            py: "3.13"
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -71,12 +80,22 @@ jobs:
         CLEAN: true
 
   pypi-package:
-    runs-on: ubuntu-latest
     name: Release packages to PyPI
     needs: build
     strategy:
       matrix:
-        py: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        include:
+          - os: ubuntu-22.04
+            py: "3.9"
+          - os: ubuntu-22.04
+            py: "3.10"
+          - os: ubuntu-22.04
+            py: "3.11"
+          - os: ubuntu-24.04
+            py: "3.12"
+          - os: ubuntu-24.04
+            py: "3.13"
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -94,5 +113,5 @@ jobs:
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@v1.4.1
       with:
-          user: __token__
-          password: ${{ secrets.PYPI_PASSWORD }}
+        user: __token__
+        password: ${{ secrets.PYPI_PASSWORD }}
