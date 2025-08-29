@@ -14,7 +14,7 @@
 - Management interface for PVs (Process Variables)
 - Command-line tools for data access and inspection
 - Flexible site configuration
-- Python 3.9, 3.10, 3.11 support
+- Support Python 3.9, 3.10, 3.11, 3.12, 3.13
 
 ---
 
