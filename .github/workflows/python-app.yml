@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-22.04"]
-        py: ["3.9", "3.10", "3.11"]
+        py: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -70,18 +70,21 @@ jobs:
         FOLDER: doc/build/html
         CLEAN: true
 
-  package:
+  pypi-package:
     runs-on: ubuntu-latest
     name: Release packages to PyPI
     needs: build
+    strategy:
+      matrix:
+        py: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
     - uses: actions/checkout@v4
       with:
         persist-credentials: false
-    - name: Set up Python 3.10
+    - name: Set up Python ${{ matrix.py }}
       uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: ${{ matrix.py }}
     - name: Build wheel
       run: |
         python -m pip install --upgrade pip
