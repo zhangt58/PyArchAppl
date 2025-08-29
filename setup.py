@@ -44,7 +44,6 @@ setup(
     long_description_content_type='text/markdown',
     url="https://github.com/archman/pyarchappl",
     author='Tong Zhang',
-    author_email='@zhangt58'
     packages=[
         'archappl.admin', 'archappl.data', 'archappl.data.pb',
         'archappl.client', 'archappl.contrib', 'archappl.config',
