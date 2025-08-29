@@ -23,7 +23,7 @@ else:
     install_requires = []
 
 
-extra_require = {
+extras_require = {
     'test': ['pytest'],
     'doc': ['sphinx', 'pydata_sphinx_theme'],
 }
@@ -65,7 +65,7 @@ setup(
     include_package_data=True,
     entry_points=set_entry_points(),
     install_requires=install_requires,
-    extra_require=extra_require,
+    extras_require=extras_require,
     license='GPL3+',
     keywords="Archiver EPICS CA PVA",
     classifiers=[
