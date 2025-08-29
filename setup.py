@@ -18,7 +18,7 @@ py_ver = (sys.version_info.major, sys.version_info.minor)
 if py_ver in [(3, 9), (3, 10), (3, 11)]:
     install_requires = read_requires("requirements.txt")
 elif py_ver in [(3, 12), (3, 13)]:
-    install_requires = read_requires("requirements-313.txt")
+    install_requires = read_requires("requirements-3.13.txt")
 else:
     install_requires = []
 
