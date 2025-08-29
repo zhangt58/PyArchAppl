@@ -1,24 +1,27 @@
 # -*- coding: utf-8 -*-
 
+import sys
 from setuptools import setup
 
 
-def readme():
+def readme() -> str:
     with open('README.md', 'r') as f:
         return f.read()
 
 
-install_requires = [
-    'numpy>=1.0,<2.0',
-    'pandas>=1.0,<2.0',
-    'openpyxl>3.0,<3.1',
-    'tzlocal>=4.0,<5.0',
-    'requests>=2.0,<3.0',
-    'simplejson>=3.0,<4.0',
-    'tqdm>=4.0,<5.0',
-    'tables>=3.0,<4.0',
-    'protobuf>=3.0,<4.0',
-]
+def read_requires(filepath: str) -> list[str]:
+    lines = []
+    for line in open(filepath, "r"):
+        lines.append(line.strip())
+
+py_ver = (sys.version_info.major, sys.version_info.minor)
+if py_ver in [(3, 9), (3, 10), (3, 11)]:
+    install_requires = read_requires("requirements.txt")
+elif py_ver in [(3, 12), (3, 13)]:
+    install_requires = read_requires("requirements-313.txt")
+else:
+    install_requires = []
+
 
 extra_require = {
     'test': ['pytest'],
@@ -42,7 +45,7 @@ setup(
     description='Python interface to Archiver Appliance',
     long_description=readme(),
     long_description_content_type='text/markdown',
-    url="https://github.com/archman/pyarchappl",
+    url="https://github.com/zhangt58/pyarchappl",
     author='Tong Zhang',
     packages=[
         'archappl.admin', 'archappl.data', 'archappl.data.pb',
