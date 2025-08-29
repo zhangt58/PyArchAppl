@@ -35,7 +35,11 @@ jobs:
         python -c "import sys; print(sys.version)"
         python -m pip install --upgrade pip
         pip install flake8 pytest wheel
-        if [ -f requirements-${{ matrix.py }}.txt ]; then pip install -r requirements-${{ matrix.py }}.txt; fi
+        if [ "${{ matrix.py }}" = "3.12" ] || [ "${{ matrix.py }}" = "3.13" ]; then
+          pip install -r requirements-3.13.txt
+        else
+          pip install -r requirements.txt
+        fi
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
