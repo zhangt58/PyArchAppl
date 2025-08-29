@@ -38,13 +38,13 @@ def set_entry_points():
 
 setup(
     name='pyarchappl',
-    version='0.10.7',
+    version='1.0.0',
     description='Python interface to Archiver Appliance',
     long_description=readme(),
     long_description_content_type='text/markdown',
     url="https://github.com/archman/pyarchappl",
     author='Tong Zhang',
-    author_email='zhangt@frib.msu.edu',
+    author_email='@zhangt58'
     packages=[
         'archappl.admin', 'archappl.data', 'archappl.data.pb',
         'archappl.client', 'archappl.contrib', 'archappl.config',
