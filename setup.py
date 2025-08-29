@@ -41,7 +41,7 @@ def set_entry_points():
 
 setup(
     name='pyarchappl',
-    version='1.0.0',
+    version='1.0.0-1',
     description='Python interface to Archiver Appliance',
     long_description=readme(),
     long_description_content_type='text/markdown',
