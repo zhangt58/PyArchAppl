@@ -36,17 +36,16 @@ try:
         _LOGGER.debug("Running in Jupyter Notebook")
     else:
         NB_SHELL = False
-        _LOGGER.warning("Not running in Jupyter Notebook")
+        _LOGGER.debug("Not running in Jupyter Notebook")
 except ImportError:
     NB_SHELL = False
-    _LOGGER.warning("'IPython' is not installed")
+    _LOGGER.debug("'IPython' is not installed")
 finally:
-    import pkg_resources
     try:
-        pkg_resources.get_distribution('tqdm')
-    except pkg_resources.DistributionNotFound:
+        import tdqm
+    except (ModuleNotFoundError, ImportError):
         TQDM_INSTALLED = False
-        _LOGGER.warning("'tqdm' is not installed")
+        _LOGGER.debug("'tqdm' is not installed")
     else:
         TQDM_INSTALLED = True
         _LOGGER.debug("Progressbar display is supported")
@@ -55,6 +54,7 @@ finally:
         else:
             from tqdm import tqdm
 
+
 from archappl.client import *
 from archappl.data import *
 
@@ -62,6 +62,6 @@ from archappl.data import *
 __version__ = '1.0.0'
 __author__ = 'Tong Zhang (@zhangt58)'
 
-__doc__ ="""archappl: Python interface of Archiver Appliance."""
+__doc__ ="""PyArchAppl: Python interface of Archiver Appliance, module name: 'archappl'."""
 
-_LOGGER.info(f"Running archappl version: {__version__}")
+_LOGGER.info(f"Running PyArchAppl version: {__version__}")
