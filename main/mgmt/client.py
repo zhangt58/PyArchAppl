@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import requests
-import json
+import pandas as pd
+from typing import Union
+from types import SimpleNamespace
 
-
-URL_DEFAULT = 'http://127.0.0.1:17665'
+from archappl.config import SITE_ADMIN_URL
 
 
 class ArchiverMgmtClient(object):
@@ -13,22 +14,25 @@ class ArchiverMgmtClient(object):
     Parameters
     ----------
     url : str
-        Base url of BPL, default is `http://127.0.0.1:17665`,
+        Base url of BPL, defaults the one defined in config.ini file:
+        1. ~/.pyarchappl/config.ini
+        2. /etc/pyarchappl/config.ini
+        otherwise, fallbacks to one deployed with the package.
     """
-    def __init__(self, url=None):
-        self._url_config = [URL_DEFAULT, '/mgmt/bpl']
+    def __init__(self, url: Union[str, None] = None):
+        self._url_config = [SITE_ADMIN_URL, '/mgmt/bpl']
         self.url = url
 
     @property
     def url(self):
-        """URL of archiver appliance (management).
+        """str: URL of archiver appliance (management).
         """
         return ''.join(self._url_config)
     
     @url.setter
-    def url(self, url):
+    def url(self, url: Union[str, None]):
         if url is None:
-            self._url_config[0] = URL_DEFAULT
+            self._url_config[0] = SITE_ADMIN_URL
         else:
             self._url_config[0] = url
 
@@ -38,60 +42,124 @@ class ArchiverMgmtClient(object):
         url = self.url + '/getApplianceInfo'
         return requests.get(url).json()
     
-    def get_all_pvs(self, expanded=False, **kws):
-        """Get all the PVs in the cluster.
+    def get_all_pvs(self, pv: str, limit: int = 10, **kws):
+        """Get the PVs in the cluster, return empty list if not being archived.
 
         Parameters
         ----------
-        expanded : bool
-            If true, return PV with all fields.
+        pv : str
+            Only return PVs matched `pv` pattern (unix wildcard).
+        limit : int
+            Length of returned list of PVs, default is 10.
 
         Keyword Arguments
         -----------------
-        pv : str
-            Only return PVs matched `pv` pattern.
-        limit : int
-            Length of returned list of PVs.
+        expanded : bool
+            If true, return ALL PV with all fields, caution it may return a huge amount data.
+
+        Returns
+        -------
+        r : list[str]
+            A list of PV names
         """
-        if expanded:
+        if kws.pop("expanded", False):
             url = self.url + '/getAllExpandedPVNames'
         else:
-            url = self.url + '/getAllPVs' 
+            url = self.url + '/getAllPVs'
+        kws.update({'pv': pv, 'limit': limit})
         return requests.get(url + _make_params(kws)).json()
 
-    def get_pv_status(self, **kws):
+    def get_pv_status(self, pv: Union[str, list[str]], **kws) -> dict[str, SimpleNamespace]:
         """Get the status of a PV.
-        """
-        url = self.url + '/getPVStatus' 
-        return requests.get(url + _make_params(kws)).json()
 
-    def get_pv_type_info(self, pv):
+        Parameters
+        ----------
+        pv : list[str], str
+            A PV name or String pattern (unix wildcard) or a list of PV names/patterns.
+
+        Returns
+        -------
+        r : dict[str, SimpleNamespace]
+            A dict of PV status, PV names as the keys.
+        """
+        url = self.url + '/getPVStatus'
+        if isinstance(pv, str):
+            kws.update({'pv': pv})
+            r = requests.get(url + _make_params(kws)).json()
+            return {i['pvName']: SimpleNamespace(**i) for i in r}
+        else:  # a list of pv string patterns
+            pv_status: dict = {}
+            for _pv in pv:
+                _kws = {k: v for k, v in kws.items()}
+                _kws.update({'pv': _pv})
+                r = requests.get(url + _make_params(_kws)).json()
+                pv_status.update({i['pvName']: SimpleNamespace(**i) for i in r})
+            return pv_status
+
+    def get_pv_type_info(self, pv: str) -> Union[SimpleNamespace, None]:
         """Get the type info for a given PV.
         
         In the archiver appliance terminology, the *PVTypeInfo* contains the
         various archiving parameters for a PV.
-        """
-        url = self.url + '/getPVTypeInfo' 
-        return requests.get(url + '?pv={}'.format(pv)).json()
-
-    def archive_pv(self, pv, op=None, **kws):
-        """Archive operations for one or more PVs.
 
         Parameters
         ----------
-        pv : str or List(str)
-            Name of PVs (list) to be operated.
+        pv : str
+            A PV name.
+
+        Returns
+        -------
+        r : SimpleNamespace or None
+            PV type info or None.
+        """
+        url = self.url + '/getPVTypeInfo' 
+        r = requests.get(url + '?pv={}'.format(pv))
+        if r.ok:
+            return SimpleNamespace(**r.json())
+        else:
+            return None
+
+    def get_pv_details(self, pv: str) -> Union[pd.DataFrame, None]:
+        """ Get the details of a PV.
+
+        Parameters
+        ----------
+        pv : str
+            A PV name.
+
+        Returns
+        -------
+        r : pd.DataFrame or None
+            PV details or None.
+        """
+        url = self.url + '/getPVDetails'
+        r = requests.get(url + '?pv={}'.format(pv))
+        if r.ok:
+            return pd.DataFrame.from_records(r.json(), index=['source', 'name'])
+        else:
+            return None
+
+    def archive_pv(self, pv: str, op: str = None, **kws):
+        """Archive operations for one PV.
+
+        Note that it supports archive multiple PVs through a single API request, but
+        here we do not explicitly do that.
+
+        Parameters
+        ----------
+        pv : str
+            One PV name to be operated.
         op : str
             Specific archive operation:
             * 'archive' (default): start to archive.
             * 'pause': pause archiving.
             * 'resume': resume archiving.
-            * 'abort': abort arhiving.
+            * 'abort': abort archiving.
             * 'update': change archiving configuration.
 
         Keyword Arguments
         -----------------
-        :archive:
+        `archive`
             samplingperiod:
                 The sampling period to be used. Optional, default value is
                 1.0 seconds.
@@ -99,7 +167,7 @@ class ArchiverMgmtClient(object):
                 The sampling method to be used. For now, this is one of SCAN
                 or MONITOR. Optional, default value is MONITOR.
             controllingPV:
-                The controlling PV for coditional archiving. Optional;
+                The controlling PV for conditional archiving. Optional;
                 if unspecified, we do not use conditional archiving.
             policy:
                 Override the policy execution process and use this policy
@@ -108,12 +176,12 @@ class ArchiverMgmtClient(object):
             appliance:
                 If specified (value is the identity of the appliance),
                 the sampling and archiving are done on the specified appliance.
-        :update:
+        `update`
             samplingmethod, samplingperiod
         """
         kparams = {'pv': pv}
+        url = self.url + '/archivePV'
         if op is None:
-            url = self.url + '/archivePV'
             kparams.update(kws)
         elif op == 'pause':
             url = self.url + '/pauseArchivingPV'
@@ -126,23 +194,37 @@ class ArchiverMgmtClient(object):
             kparams.update(kws)
         return requests.get(url + _make_params(kparams)).json()
 
-    def get_stores_for_pv(self, pv):
+    def get_stores_for_pv(self, pv: str) -> Union[SimpleNamespace, None]:
         """ Gets the names of the data stores for this PV.
+
+        Parameters
+        ----------
+        pv : str
+            A PV name.
+
+        Returns
+        -------
+        r : SimpleNamespace or None
+            PV type info or None.
         """
         url = self.url + '/getStoresForPV' 
-        return requests.get(url + '?pv={}'.format(pv)).json()
+        r = requests.get(url + '?pv={}'.format(pv))
+        if r.ok:
+            return SimpleNamespace(**r.json())
+        else:
+            return None
 
-    def delete_pv(self, pv, delete_data=False):
-        """ Stop archiving the specified PV. The PV needs to be paused first.
-        """
-        url = self.url + '/deletePV' 
-        return requests.get(url + _make_params({'deleteData': delete_data, 'pv': pv})).json()
+    # def delete_pv(self, pv, delete_data=False):
+    #     """ Stop archiving the specified PV. The PV needs to be paused first.
+    #     """
+    #     url = self.url + '/deletePV'
+    #     return requests.get(url + _make_params({'deleteData': delete_data, 'pv': pv})).json()
 
     def __repr__(self):
         return "[Admin Client] Archiver Appliance on: {url}".format(url=self.url)
 
 
-def _make_params(d):
+def _make_params(d: dict):
     p = ['{k}={v}'.format(k=k, v=v) for k,v in d.items()
             if v is not None]
     if p:

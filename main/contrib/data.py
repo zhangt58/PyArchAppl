@@ -3,13 +3,15 @@
 import logging
 import time
 import pandas as pd
+from typing import Union
 from datetime import datetime
 from functools import partial
-from archappl.client import FRIBArchiverDataClient
+from archappl.client import ArchiverDataClient
 from archappl.data.utils import LOCAL_ZONE_NAME
 from archappl import TQDM_INSTALLED
 
 _LOGGER = logging.getLogger(__name__)
+SITE_DATA_CLIENT = ArchiverDataClient()
 
 
 class HitSingleDataEntry(Exception):
@@ -17,39 +19,39 @@ class HitSingleDataEntry(Exception):
         super(self.__class__, self).__init__(*args, **kws)
 
 
-def _get_data(pv, from_time, to_time, client=None, use_json=False):
-    if client is None:
-        client = FRIBArchiverDataClient
-    if use_json:
-        client.format = 'JSON'
-    data = client.get_data(pv,
-                           from_time=from_time,
-                           to_time=to_time)
+class HitEmptyDataset(Exception):
+    def __init__(self, *args, **kws):
+        super(self.__class__, self).__init__(*args, **kws)
+
+
+def _get_data(pv: str, from_time: str, to_time: str,
+              client: ArchiverDataClient, **kws) -> tuple[Union[pd.DataFrame, None], str]:
+    data = client.get_data(pv, from_time=from_time, to_time=to_time, **kws)
     try:
-        assert data is not None
-        if len(data.iloc[:,0]) == 1:
+        if data is None:
+            raise HitEmptyDataset
+        if data.index.size == 1:
             raise HitSingleDataEntry
-    except AssertionError:
+    except HitEmptyDataset:
         # got nothing
         r, reason = None, "NotExist"
-        _LOGGER.error(f"Got nothing, probably {pv} is not archived or no data in the given time range.")
+        _LOGGER.error(f"Got nothing, either '{pv}' is not being archived or no data in the given time range.")
     except HitSingleDataEntry:
         reason = "SingleEntry"
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
         r = data
-        _LOGGER.warning(f"Only get single sample for {pv}")
+        _LOGGER.warning(f"Only got a single sample for '{pv}'")
     else:
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
         r, reason = data, "OK"
-    finally:
-        return r, reason
+    return r, reason
 
 
 def _get_data_at_time(pv_list, at_time, client=None):
     if client is None:
-        client = FRIBArchiverDataClient
+        client = SITE_DATA_CLIENT
     data = client.get_data_at_time(pv_list, at_time)
     if data == {} or data is None:
         _LOGGER.warning("Retrieved nothing")
@@ -57,13 +59,14 @@ def _get_data_at_time(pv_list, at_time, client=None):
     return data
 
 
-def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
+def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
+                         to_time: Union[str, None] = None, **kws):
     """Pull data from Archiver Appliance, with a given list of PVs, within defined time slot.
     Return None if no data is retrieved.
 
     Parameters
     ----------
-    pv_list : list
+    pv_list : list[str]
         A list of process variables.
     from_time : str
         A string of start time of the data in ISO8601 format.
@@ -73,7 +76,7 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+        An ArchiverDataClient instance, defaults to the one defined by the site config file.
     resample : str
         The offset string or object representing target conversion, e.g. resample with 1 second
         offset could be defined as '1S'.
@@ -82,6 +85,8 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
         progress with description.
     use_json : bool
         If set True, fetch data in the form of JSON instead of RAW, default is False.
+    last_n : int
+        Limit the number of data rows to the defined integer, defaults to 0, return all.
 
     Returns
     -------
@@ -109,31 +114,32 @@ def get_dataset_with_pvs(pv_list, from_time=None, to_time=None, **kws):
                                         client=data_client)
     """
     t0_ = time.time()
-    client = kws.pop('client', None)
+    client = kws.pop('client', ArchiverDataClient())
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
-    use_json = kws.pop('use_json', False)
+    last_n = kws.get('last_n', 0)
+    if kws.pop('use_json', False):
+        client.format = "json"
     df_list = []
-    _LOGGER.info("Start pulling data")
+    _LOGGER.info("Started fetching data...")
     if verbose != 0 and TQDM_INSTALLED:
         from archappl import tqdm
         pbar = tqdm(pv_list)
     else:
         pbar = pv_list
     for pv in pbar:
-        data_, reason_ = _get_data(pv, from_time, to_time, client=client,
-                                   use_json=use_json)
+        data_, reason_ = _get_data(pv, from_time, to_time, client=client, last_n=last_n)
         if reason_ == 'NotExist':
-            _LOGGER.info(f"Skip not being archived PV: {pv}")
+            _LOGGER.info(f"Skip PV: '{pv}'")
             if verbose > 1:
-                pbar.set_description(f"Skip {pv}")
+                pbar.set_description(f"Skip '{pv}'")
             continue
         df_list.append(data_)
         if verbose > 1:
-            pbar.set_description(f"Fetched data for {pv}")
-            _LOGGER.debug(f"Fetched data for {pv}")
+            pbar.set_description(f"Fetched data for '{pv}'")
+            _LOGGER.debug(f"Fetched data for '{pv}'")
     if not df_list:
-        _LOGGER.warning("Get nothing, return None")
+        _LOGGER.warning("Got nothing, return None")
         return None
     data = df_list[0].join(df_list[1:], how='outer')
     data.fillna(method='ffill', inplace=True)
@@ -167,7 +173,7 @@ def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=N
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+        ArchiverDataClient instance, defaults to the one defined by the site config file.
     resample : str
         The offset string or object representing target conversion, e.g. resample with 1 second
         offset could be defined as '1S'.
@@ -208,9 +214,11 @@ def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=N
                                             client=data_client)
     """
     handle = kws.pop('handle', 'readback')
-    pv_list = [i.pv(field=f, handle=handle)[0] for i in element_list
-                for f in field_list if i.pv(field=f, handle=handle) != []]
-    _df = get_dataset_with_pvs(pv_list, from_time, to_time, **kws)
+    pvs = set()
+    for elem in element_list:
+        for f in field_list:
+            pvs.update(elem.pv(field=f, handle=handle))
+    _df = get_dataset_with_pvs(pvs, from_time, to_time, **kws)
     if _df is None:
         return None
     return _fieldize_df(_df, element_list, field_list, handle)
@@ -229,7 +237,7 @@ def get_dataset_at_time_with_pvs(pv_list, at_time, **kws):
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+        ArchiverDataClient instance, defaults to the one defined by the site config file.
     tz : str
         Name of timezone for the returned index, default is local zone.
 
@@ -261,7 +269,7 @@ def get_dataset_at_time_with_devices(element_list, field_list, at_time, **kws):
     Keyword Arguments
     -----------------
     client : ArchiverDataClient
-        ArchiverDataClient instance, default is FRIBArchiverDataClient.
+        ArchiverDataClient instance, defaults to the one defined by the site config file.
     handle : str
         PV handle for field list, by default is 'readback', other options: 'setpoint'.
     tz : str
@@ -352,7 +360,7 @@ def _get_ion_info(t):
     pv_ion_number = "FE_ISRC1:BEAM:Z_BOOK"
     pv_ion_name = "FE_ISRC1:BEAM:ELMT_BOOK"
     pv_list = [pv_ion_mass, pv_ion_charge, pv_ion_number, pv_ion_name]
-    return get_dataset_at_time_with_pvs(pv_list, t, client=FRIBArchiverDataClient)
+    return get_dataset_at_time_with_pvs(pv_list, t, client=SITE_DATA_CLIENT)
 
 
 def export_as_settings_manager_datafile(df, filepath, **kws):

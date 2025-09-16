@@ -8,9 +8,8 @@ $ pyarchappl-get --verbose 1 --pv VA:LS1_CA01:BPM_D1129:X_RD --pv VA:LS1_CA01:BP
                  --from-time 2021-04-15T20:10:00.000Z --to-time 2021-04-15T21:25:00.000Z
                  --resample 1min --url http://127.0.0.1:17665
 """
-
 from archappl.client import ArchiverDataClient
-from archappl.client import FRIBArchiverDataClient
+from archappl.contrib import get_dataset_with_pvs
 
 import argparse
 import logging
@@ -28,7 +27,7 @@ parser = argparse.ArgumentParser(
         description="Retrieve data from Archiver Appliance and export as a file.",
         formatter_class=Formatter)
 parser.add_argument('--url', dest='url', default=None,
-        help="URL of Archiver Appliance, default is FRIB FTC archiver")
+        help="URL of Archiver Appliance, defaults to the one defined in site configuration file.")
 parser.add_argument('--pv', action='append', dest='pv_list',
         help="List of PVs for retrieval, each define with --pv")
 parser.add_argument('--pv-file', dest='pv_file', default=None,
@@ -53,6 +52,8 @@ parser.add_argument('--format-args', dest='fmt_args', type=json.loads, default='
         help='''Additional arguments passed to data export function in the form of dict, e.g. '{"key":"data"}' (for hdf format)''')
 parser.add_argument('--log-file', dest='logfile', default=None,
         help="File path for log messages, print to stdout if not defined.")
+parser.add_argument('--last-n', '-n', dest='last_n', type=int, default=0,
+                    help="Define the maximum number of most recent samples for each PV.")
 
 parser.epilog = \
 """
@@ -110,7 +111,7 @@ def main():
     # time range
     if args.from_time is None or args.to_time is None:
         _LOGGER.warning(
-            "Arguments: --from and/or --to is set with None, refer to -h for time range set.")
+            "Arguments: --from and/or --to is not set, refer to -h for time range set.")
         # sys.exit(1)
     else:
         _LOGGER.info(f"Fetch data from {args.from_time} to {args.to_time}")
@@ -134,23 +135,25 @@ def main():
         pass
     else:
         _LOGGER.info(f"Read {i} PVs from '{args.pv_file}'")
-    if pv_list == []:
+    if not pv_list:
         parser.print_help()
         sys.exit(1)
 
     # client
     if args.url is None:
-        client = FRIBArchiverDataClient
-        _LOGGER.info("Connected to FRIB FTC Archiver Appliance")
+        client = ArchiverDataClient()
     else:
         client = ArchiverDataClient(url=args.url)
-        _LOGGER.info(f"Connected to Archiver Appliance at {args.url}")
-
-    from archappl.contrib import get_dataset_with_pvs
+    if args.use_json:
+        client.format = "json"
+    _LOGGER.info(f"{client}")
 
     dset = get_dataset_with_pvs(pv_list, args.from_time, args.to_time, client=client,
                                 resample=args.resample, verbose=args.verbose,
-                                use_json=args.use_json)
+                                last_n=args.last_n)
+    if dset is None:
+        _LOGGER.warning("No data to output.")
+        sys.exit(1)
     output = args.output
     if output is None:
         try:
