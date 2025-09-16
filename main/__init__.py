@@ -12,9 +12,9 @@ __LOG_LEVEL_MAP = {
     'CRITICAL': logging.CRITICAL,
 }
 
-# env: ARCHAPPL_LOG_LEVEL: debug, info (default), warning, error, critical
+# env: PYARCHAPPL_LOG_LEVEL: debug, info (default), warning, error, critical
 DEFAULT_LOGGING_LEVEL = __LOG_LEVEL_MAP.get(
-        os.environ.get('ARCHAPPL_LOG_LEVEL', 'INFO').upper())
+        os.environ.get('PYARCHAPPL_LOG_LEVEL', 'INFO').upper())
 
 logging.basicConfig(
         level=DEFAULT_LOGGING_LEVEL,
