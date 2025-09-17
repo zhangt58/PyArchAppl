@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+import zoneinfo
 import dateutil.relativedelta as relativedelta
-import pytz
 import time
-import tzlocal
+from datetime import datetime
+from typing import Union
+
+from archappl.config import SITE_CONFIG
 
 TS_FMT = "%Y-%m-%dT%H:%M:%S.%f"
-LOCAL_ZONE = tzlocal.get_localzone()
-LOCAL_ZONE_NAME = str(LOCAL_ZONE) # America/New_York
+LOCAL_ZONE_NAME = SITE_CONFIG.get("misc", {}).get("local_timezone", time.tzname[0])
+LOCAL_ZONE = zoneinfo.ZoneInfo(LOCAL_ZONE_NAME)
+UTC_ZONE = zoneinfo.ZoneInfo("UTC")
 
 
 class DatetimeTuple:
@@ -24,19 +27,17 @@ class DatetimeTuple:
         self.millisecond = millisecond
 
 
-def standardize_datetime(date_time, time_zone=None):
-    """Standardize datetime (object or string) to iso8601 UTC string format.
+def standardize_datetime(date_time: Union[tuple, datetime], time_zone: Union[str, None] = None):
+    """Standardize datetime (object or tuple of int) to iso8601 UTC string format.
 
     Parameters
     ----------
-    date_time : tuple of str or datetime
-        String representation of datetime, with a tuple of (year, month,
-        day, hour, minute, second, millisecond), define timezone by
-        *timezone* argument. Or define with datetime object, if tzinfo is defined,
-        ignore *time_zone*.
+    date_time : tuple | datetime
+        A tuple of `(year, month, day, hour, minute, second, millisecond)` or a shorter one;
+        or define with a datetime object, if tzinfo is defined, ignore *time_zone*.
     time_zone : str
-        Name of time zone, default is local zone, e.g. America/New_York,
-        see also: pytz.all_timezones.
+        Name of timezone, default is local time zone, e.g. 'EST',
+        see `zoneinfo.available_timezones()`.
 
     Returns
     -------
@@ -49,28 +50,28 @@ def standardize_datetime(date_time, time_zone=None):
     >>> from datetime import datetime
     >>> t0_dst = datetime(2016, 11, 5, 23, 0, 0, 0)
     >>> t0 = datetime_with_timezone(t0_dst)
-    >>> print(standardize_datetime(t0))
+    >>> print(standardize_datetime(t0)[1])
     2016-11-06T03:00:00.000Z
     >>> t_tuple = (2016, 11, 5, 23)
-    >>> print(standardize_datetime(t_tuple))
+    >>> print(standardize_datetime(t_tuple)[1])
     2016-11-06T03:00:00.000Z
     """
     if time_zone is None:
         _tz = LOCAL_ZONE
     else:
-        _tz = pytz.timezone(time_zone)
+        _tz = zoneinfo.ZoneInfo(time_zone)
 
     if isinstance(date_time, tuple):
         dt_tuple = DatetimeTuple(*date_time)
         _t = datetime(dt_tuple.year, dt_tuple.month, dt_tuple.day,
                       dt_tuple.hour, dt_tuple.minute, dt_tuple.second,
                       dt_tuple.millisecond * 1000)
-        t = datetime_with_timezone(_tz.localize(_t), 'UTC')
+        t = datetime_with_timezone(_t.replace(tzinfo=LOCAL_ZONE), 'UTC')
     else: # datetime
         if date_time.tzinfo is not None:
-            t = date_time.astimezone(pytz.timezone('UTC'))
+            t = date_time.astimezone(UTC_ZONE)
         else:
-            _t = datetime_with_timezone(date_time, _tz.zone)
+            _t = datetime_with_timezone(date_time, _tz.tzinfo.key)
             t = datetime_with_timezone(_t, 'UTC')
     return t, f"{t.year:4d}-{t.month:02d}-{t.day:02d}T{t.hour:02d}:{t.minute:02d}:{t.second:02d}.{int(t.microsecond/1000.0):03d}Z"
 
@@ -115,12 +116,14 @@ def epoch_to_iso(ts, tz="-05:00"):
     return datetime.fromtimestamp(ts).isoformat() + tz
 
 
-def datetime_with_timezone(date_time, time_zone=None):
-    """Function to represent datetime object *date_time* with timezone info.
-    If input *date_time* does have tzinfo, and if *time_zone* is defined, convert
-    *date_time* to defined timezone, otherwise does nothing.
-    If input *date_time* does not have tzinfo, set with defined *time_zone*, no
-    changes of date time.
+def datetime_with_timezone(date_time, time_zone: Union[str, None] = None):
+    """Represent datetime object *date_time* with timezone info (`tzinfo`).
+
+    If the input *date_time* does have `tzinfo`, and if *time_zone* is defined, convert
+    *date_time* to the defined timezone, otherwise does nothing.
+
+    If the input *date_time* does NOT have `tzinfo` (`tzinfo` is None), set with the defined *time_zone*
+    as the `tzinfo`, keep the date time values untouched.
 
     Parameters
     ----------
@@ -128,7 +131,7 @@ def datetime_with_timezone(date_time, time_zone=None):
         Datetime object.
     time_zone : str
         Name of timezone, default is local time zone, e.g. 'EST',
-        see pytz.all_timezones.
+        see `zoneinfo.available_timezones()`.
 
     Returns
     -------
@@ -139,15 +142,21 @@ def datetime_with_timezone(date_time, time_zone=None):
     --------
     >>> from datetime import datetime
     >>> dt0 = datetime.now()  # local timezone datetime, but without tzinfo explicitly define.
+    >>> print(dt0.isoformat())
+    2025-09-17T14:58:16.409648
     >>> dt0_w_tz = datetime_with_timezone(dt0)
-    >>> print(dt0_w_tz.tzinfo.zone)
-    'America/New_York'
+    >>> print(dt0_w_tz.tzinfo.key)
+    America/Detroit
+    >>> print(dt0_w_tz.tzname())
+    EDT
     >>> dt1 = datetime_with_timezone(dt0_w_tz, time_zone='UTC')  # represent last datetime in UTC zone
-    >>> print(dt1.tzinfo.zone)
-    'UTC'
-    >>> print(dt1.hour - dt0_w_tz.hour) # UTC if ahead of EST by 5 hours
-    5
+    >>> print(dt1.tzinfo.key)
+    UTC
+    >>> print(dt1.hour - dt0_w_tz.hour) # UTC is ahead of EDT by 4 hours
+    4
     >>> dt2 = datetime(2020, 11, 10, 1, 12, 3, 456789) # arbitrary datetime but w/o zone
+    >>> print(dt2)
+    2020-11-10 01:12:03.456789
     >>> # present dt2 at local zone
     >>> dt2_local = datetime_with_timezone(dt2)
     >>> print(dt2_local)
@@ -168,26 +177,16 @@ def datetime_with_timezone(date_time, time_zone=None):
     if time_zone is None:
         _timezone = LOCAL_ZONE
     else:
-        _timezone = pytz.timezone(time_zone)
-
+        _timezone = zoneinfo.ZoneInfo(time_zone)
     if date_time.tzinfo is not None:
         if time_zone is not None:
-            _dt1 = date_time.astimezone(_timezone)
-            _dt = _timezone.localize(datetime(_dt1.year, _dt1.month, _dt1.day,
-                                              _dt1.hour, _dt1.minute, _dt1.second,
-                                              _dt1.microsecond))
+            # convert to the defined timezone
+            return date_time.astimezone(_timezone)
         else:
-            _dt1 = date_time
-            _dt = date_time.tzinfo.localize(datetime(
-                                              _dt1.year, _dt1.month, _dt1.day,
-                                              _dt1.hour, _dt1.minute, _dt1.second,
-                                              _dt1.microsecond))
+            return date_time
     else:
-        _dt1 = date_time
-        _dt = _timezone.localize(datetime(_dt1.year, _dt1.month, _dt1.day,
-                                          _dt1.hour, _dt1.minute, _dt1.second,
-                                          _dt1.microsecond))
-    return _dt
+        # set the defined timezone
+        return date_time.replace(tzinfo=_timezone)
 
 
 def is_dst(date_time):
@@ -200,11 +199,11 @@ def is_dst(date_time):
     >>> t0 = datetime(2016, 11, 2, 12, 34, 56, 123456)  # local time at America/New_York
     >>> print(is_dst(t0))
     True
-    >>> print(is_dst(t0.astimezone(pytz.timezone('UTC'))))
+    >>> print(is_dst(t0.astimezone(zoneinfo.ZoneInfo('UTC'))))
     False
     """
     if date_time.tzinfo is None:
-        return bool(pytz.timezone(LOCAL_ZONE_NAME).localize(date_time).dst())
+        return bool(datetime_with_timezone(date_time).dst())
     else:
         return bool(datetime_with_timezone(date_time).dst())
 
@@ -294,7 +293,7 @@ def parse_dt(dt, ref_datetime=None, epoch=None):
         _datetime_as_utc = ref_dt_as_utc - dt
     else:
         _datetime_as_utc = ref_dt_as_utc + dt
-    _datetime = datetime_with_timezone(_datetime_as_utc, time_zone=ref_dt.tzinfo.zone)
+    _datetime = datetime_with_timezone(_datetime_as_utc, time_zone=ref_dt.tzinfo.key)
     if epoch:
         r = _datetime.timestamp
     else:
