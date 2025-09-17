@@ -51,6 +51,13 @@ def read_config(config_file: Union[Path, None] = None) -> dict:
             get_config['use_json'] = config['cli.pyarchappl-get'].getboolean('use_json')
         all_config['cli.pyarchappl-get'] = get_config
 
+    # misc options
+    if 'misc' in config:
+        misc_config = dict(config['misc'])
+        if 'local_timezone' in misc_config:
+            misc_config['local_timezone'] = config['misc'].get('local_timezone')
+        all_config['misc'] = misc_config
+
     return all_config
 
 
