@@ -26,6 +26,7 @@ import os
 
 VALID_INFO_KEYS = ('status', 'type', 'details', 'stores')
 
+
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
     pass
 
@@ -51,6 +52,8 @@ parser.add_argument('--log-file', dest='logfile', default=None,
                     help="File path for log messages, print to stdout if not defined.")
 parser.add_argument('-o', '--output', dest='output', default=None,
                     help="File path for output data, print to stdout if not defined")
+parser.add_argument('--show-config', action='store_true',
+                    help = "Print the site configuration with essential dependencies and their versions.")
 
 parser.epilog = \
 """
@@ -66,12 +69,19 @@ $ {n} --pv TST:constant --pv TST:uniformNoise --key type --output type.json
 
 
 def main():
-    _LOGGER.info("Executing pyarchappl-inspect ...")
+    _LOGGER.info(f"Executing {os.path.basename(sys.argv[0])} ...")
     args = parser.parse_args(sys.argv[1:])
 
     if args.version:
         from archappl import __version__
-        print(f"Current version of pyarchappl is: {__version__}")
+        from .utils import print_deps
+        print(f"PyArchAppl: {__version__}")
+        print_deps()
+        sys.exit(0)
+
+    if args.show_config:
+        from .utils import print_site_config
+        print_site_config()
         sys.exit(0)
 
     # log file
