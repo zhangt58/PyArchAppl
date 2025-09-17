@@ -45,11 +45,11 @@ def read_config(config_file: Union[Path, None] = None) -> dict:
         'path': _config_pth[0]
     }
     # commands default options
-    if 'pyarchappl-get' in config:
-        get_config = dict(config['pyarchappl-get'])
+    if 'cli.pyarchappl-get' in config:
+        get_config = dict(config['cli.pyarchappl-get'])
         if 'use_json' in get_config:
-            get_config['use_json'] = config['pyarchappl-get'].getboolean('use_json')
-        all_config['pyarchappl-get'] = get_config
+            get_config['use_json'] = config['cli.pyarchappl-get'].getboolean('use_json')
+        all_config['cli.pyarchappl-get'] = get_config
 
     return all_config
 
