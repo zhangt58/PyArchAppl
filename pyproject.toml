@@ -1,0 +1,73 @@
+[project]
+name = "pyarchappl"
+version = "1.0.1"
+authors = [
+    { name="Tong Zhang" }
+]
+description = "Python interface to Archiver Appliance"
+keywords = ["Archiver", "EPICS", "CA", "PVA"]
+readme = "README.md"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "numpy",
+    "pandas",
+    "openpyxl",
+    "tqdm",
+    "requests",
+    "simplejson",
+    "tables",
+    "protobuf>=3.0,<4.0",
+    "setuptools",
+]
+requires-python = ">=3.9"
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+
+[project.urls]
+Homepage = "https://github.com/zhangt58/pyarchappl"
+PyPI = "https://pypi.org/project/pyarchappl"
+
+[project.optional-dependencies]
+test = ["pytest"]
+doc = ["sphinx", "pydata_sphinx_theme"]
+
+[project.scripts]
+pyarchappl-get = "archappl.scripts.get:main"
+pyarchappl-inspect = "archappl.scripts.inspect:main"
+
+[tool.setuptools]
+packages = [
+    "archappl.admin",
+    "archappl.data",
+    "archappl.data.pb",
+    "archappl.client",
+    "archappl.contrib",
+    "archappl.config",
+    "archappl.scripts",
+    "archappl.tests",
+    "archappl",
+]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+"archappl.admin" = "main/mgmt"
+"archappl.data" = "main/data"
+"archappl.data.pb" = "main/data/pb"
+"archappl.client" = "main/client"
+"archappl.contrib" = "main/contrib"
+"archappl.config" = "main/config"
+"archappl.scripts" = "main/scripts"
+"archappl.tests" = "main/tests"
+"archappl" = "main"
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
