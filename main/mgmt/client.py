@@ -28,7 +28,7 @@ class ArchiverMgmtClient(object):
         """str: URL of archiver appliance (management).
         """
         return ''.join(self._url_config)
-    
+
     @url.setter
     def url(self, url: Union[str, None]):
         if url is None:
@@ -41,7 +41,7 @@ class ArchiverMgmtClient(object):
         """
         url = self.url + '/getApplianceInfo'
         return requests.get(url).json()
-    
+
     def get_all_pvs(self, pv: str, limit: int = 10, **kws):
         """Get the PVs in the cluster, return empty list if not being archived.
 
@@ -98,7 +98,7 @@ class ArchiverMgmtClient(object):
 
     def get_pv_type_info(self, pv: str) -> Union[SimpleNamespace, None]:
         """Get the type info for a given PV.
-        
+
         In the archiver appliance terminology, the *PVTypeInfo* contains the
         various archiving parameters for a PV.
 
@@ -112,7 +112,7 @@ class ArchiverMgmtClient(object):
         r : SimpleNamespace or None
             PV type info or None.
         """
-        url = self.url + '/getPVTypeInfo' 
+        url = self.url + '/getPVTypeInfo'
         r = requests.get(url + '?pv={}'.format(pv))
         if r.ok:
             return SimpleNamespace(**r.json())
@@ -194,7 +194,7 @@ class ArchiverMgmtClient(object):
             kparams.update(kws)
         return requests.get(url + _make_params(kparams)).json()
 
-    def get_stores_for_pv(self, pv: str) -> Union[SimpleNamespace, None]:
+    def get_stores_for_pv(self, pv: str) -> Union[list, None]:
         """ Gets the names of the data stores for this PV.
 
         Parameters
@@ -204,13 +204,13 @@ class ArchiverMgmtClient(object):
 
         Returns
         -------
-        r : SimpleNamespace or None
-            PV type info or None.
+        r : list or None
+            A list of data stores or None.
         """
-        url = self.url + '/getStoresForPV' 
+        url = self.url + '/getStoresForPV'
         r = requests.get(url + '?pv={}'.format(pv))
         if r.ok:
-            return SimpleNamespace(**r.json())
+            return r.json()
         else:
             return None
 
@@ -238,7 +238,7 @@ if __name__ == '__main__':
     assert str(a) == '[Admin Client] Archiver Appliance on: http://127.0.0.1:17665/mgmt/bpl'
     # URL
     assert a.url == 'http://127.0.0.1:17665/mgmt/bpl'
-    
+
     # get appliance info
     print(a.get_appliance_info())
 
