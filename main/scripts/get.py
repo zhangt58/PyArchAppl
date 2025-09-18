@@ -23,6 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
     pass
 
+
 parser = argparse.ArgumentParser(
         description="Retrieve data from Archiver Appliance and export as a file.",
         formatter_class=Formatter)
@@ -54,6 +55,8 @@ parser.add_argument('--log-file', dest='logfile', default=None,
         help="File path for log messages, print to stdout if not defined.")
 parser.add_argument('--last-n', '-n', dest='last_n', type=int, default=0,
                     help="Define the maximum number of most recent samples for each PV.")
+parser.add_argument('--show-config', action='store_true',
+                    help="Print the site configuration with essential dependencies and their versions.")
 
 parser.epilog = \
 """
@@ -89,11 +92,19 @@ $ {n} -vv --pv-file pvlist.txt \\
 
 
 def main():
+    _LOGGER.info(f"Executing {os.path.basename(sys.argv[0])} ...")
     args = parser.parse_args(sys.argv[1:])
 
     if args.version:
         from archappl import __version__
-        print(f"Current version of pyarchappl is: {__version__}")
+        from .utils import print_deps
+        print(f"PyArchAppl: {__version__}")
+        print_deps()
+        sys.exit(0)
+
+    if args.show_config:
+        from .utils import print_site_config
+        print_site_config()
         sys.exit(0)
 
     # log file

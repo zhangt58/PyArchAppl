@@ -16,7 +16,7 @@ def test_config_full(config_dir: Path):
         'data_port': '17668',
         'data_format': 'raw'
     }
-    assert conf['pyarchappl-get'] == {
+    assert conf['cli.pyarchappl-get'] == {
         'use_json': False
     }
 
