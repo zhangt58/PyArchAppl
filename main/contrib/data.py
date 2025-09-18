@@ -114,7 +114,9 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
                                         client=data_client)
     """
     t0_ = time.time()
-    client = kws.pop('client', ArchiverDataClient())
+    client = kws.pop('client', None)
+    if client is None:
+        client = SITE_DATA_CLIENT
     resample = kws.pop('resample', None)
     verbose = kws.pop('verbose', 0)
     last_n = kws.get('last_n', 0)

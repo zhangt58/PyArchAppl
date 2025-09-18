@@ -136,7 +136,7 @@ class ArchiverDataClient(object):
                 return normalize(data_, tz, last_n=last_n)
 
     def __repr__(self):
-        return f"[({self.format}) Data Client] hooked to Archiver Appliance at: {self._url_config[0]}"
+        return f"[({self.format}) Data Client] connected to Archiver Appliance at: {self._url_config[0]}"
 
 
 def normalize(data: list[dict], tz: str = 'UTC', **kws) -> Union[pd.DataFrame, None]:
