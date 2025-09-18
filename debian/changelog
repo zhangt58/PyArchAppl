@@ -1,3 +1,11 @@
+pyarchappl (1.0.2-1) unstable; urgency=medium
+
+  * BLD: Update patch to remove pyproject.toml.
+  * BLD: WIP, release 1.0.2-1.
+  * Merge tag 'upstream/1.0.2' into uc5
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Thu, 18 Sep 2025 17:40:23 -0400
+
 pyarchappl (1.0.1-1) unstable; urgency=medium
 
   * BLD: Update lintian overrides.
