@@ -54,7 +54,8 @@ parser.add_argument('--format-args', dest='fmt_args', type=json.loads, default='
 parser.add_argument('--log-file', dest='logfile', default=None,
         help="File path for log messages, print to stdout if not defined.")
 parser.add_argument('--last-n', '-n', dest='last_n', type=int, default=0,
-                    help="Define the maximum number of most recent samples for each PV.")
+                    help="Limit the maximum number of most recent samples to retrieve for each PV; "
+                    "for multiple PVs, limit the PV with fewest samples to the defined value.")
 parser.add_argument('--show-config', action='store_true',
                     help="Print the site configuration with essential dependencies and their versions.")
 
