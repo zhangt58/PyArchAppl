@@ -42,7 +42,7 @@ parser.add_argument('--use-json', action='store_true',
 parser.add_argument('--resample', dest='resample', default=None,
         help="The offset string/object representing target conversion, e.g. '1S' for resample with 1 second")
 parser.add_argument('--verbose', '-v', action='count', default=0,
-        help="Verbosity level of the log output, 0: no output, 1(-v): output progress, 2(-vv): output progress with description. Set env 'ARCHAPPL_LOG_LEVEL' for more output messages.")
+        help="Verbosity level of the log output, 0: no output, 1(-v): output progress, 2(-vv): output progress with description. Set env 'PYARCHAPPL_LOG_LEVEL' to control the log level.")
 parser.add_argument('--version', action='store_true',
         help="Print out version info")
 parser.add_argument('-o', '--output', dest='output', default=None,
@@ -54,7 +54,8 @@ parser.add_argument('--format-args', dest='fmt_args', type=json.loads, default='
 parser.add_argument('--log-file', dest='logfile', default=None,
         help="File path for log messages, print to stdout if not defined.")
 parser.add_argument('--last-n', '-n', dest='last_n', type=int, default=0,
-                    help="Define the maximum number of most recent samples for each PV.")
+                    help="Limit the maximum number of most recent samples to retrieve for each PV; "
+                    "for multiple PVs, limit the PV with fewest samples to the defined value.")
 parser.add_argument('--show-config', action='store_true',
                     help="Print the site configuration with essential dependencies and their versions.")
 
