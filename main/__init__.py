@@ -37,22 +37,21 @@ try:
     else:
         NB_SHELL = False
         _LOGGER.debug("Not running in Jupyter Notebook")
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     NB_SHELL = False
     _LOGGER.debug("'IPython' is not installed")
-finally:
-    try:
-        import tdqm
-    except (ModuleNotFoundError, ImportError):
-        TQDM_INSTALLED = False
-        _LOGGER.debug("'tqdm' is not installed")
+
+try:
+    if NB_SHELL:
+        from tqdm.notebook import tqdm
     else:
-        TQDM_INSTALLED = True
-        _LOGGER.debug("Progressbar display is supported")
-        if NB_SHELL:
-            from tqdm.notebook import tqdm
-        else:
-            from tqdm import tqdm
+        from tqdm import tqdm
+except (ModuleNotFoundError, ImportError):
+    TQDM_INSTALLED = False
+    _LOGGER.debug("'tqdm' is not installed")
+else:
+    TQDM_INSTALLED = True
+    _LOGGER.debug("Progressbar display is supported")
 
 
 from archappl.client import *
