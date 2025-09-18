@@ -37,7 +37,7 @@ try:
     else:
         NB_SHELL = False
         _LOGGER.debug("Not running in Jupyter Notebook")
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     NB_SHELL = False
     _LOGGER.debug("'IPython' is not installed")
 finally:
