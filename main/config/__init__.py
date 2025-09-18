@@ -86,7 +86,7 @@ def get_config_path() -> Path:
 
 
 config_path: Path = get_config_path()
-_LOGGER.info(f"Using site config file: {config_path}")
+_LOGGER.debug(f"Using site config file: {config_path}")
 SITE_CONFIG: dict = read_config(config_path)
 SITE_SERVER_CONFIG: dict = SITE_CONFIG['server']
 if 'admin_port' in SITE_SERVER_CONFIG:
