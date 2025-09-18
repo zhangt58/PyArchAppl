@@ -20,7 +20,6 @@ install_requires = [
     "pandas",
     "openpyxl",
     "tqdm",
-    "tzlocal",
     "requests",
     "simplejson",
     "tables",
