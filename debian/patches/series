@@ -1,2 +1,3 @@
 0001-ENH-Add-site-config-for-FRIB-and-ReA.patch
 0002-REF-Update-the-config-for-FTC-deployment.patch
+0001-MNT-Add-back-setup.py-required-by-Bookworm-deb-build.patch
