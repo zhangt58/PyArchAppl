@@ -1,0 +1,53 @@
+From 18d3b3db972d07dafaf441f528f941a1cae97b16 Mon Sep 17 00:00:00 2001
+From: Tong Zhang <zhangt@frib.msu.edu>
+Date: Fri, 29 Aug 2025 08:31:25 -0400
+Subject: [PATCH 1/2] ENH: Add site config for FRIB and ReA.
+
+---
+ main/config/frib.ini | 13 +++++++++++++
+ main/config/rea.ini  | 12 ++++++++++++
+ 2 files changed, 25 insertions(+)
+ create mode 100644 main/config/frib.ini
+ create mode 100644 main/config/rea.ini
+
+diff --git a/main/config/frib.ini b/main/config/frib.ini
+new file mode 100644
+index 0000000..38fa529
+--- /dev/null
++++ b/main/config/frib.ini
+@@ -0,0 +1,13 @@
++[main]
++use = default.server
++
++[default.server]
++url = http://epicsarchiver1.ftc
++admin_port = 17665
++data_port = 17668
++data_format = raw
++admin_disabled = false
++
++[pyarchappl-get]
++# default CLI options for pyarchappl-get
++use_json = false
+diff --git a/main/config/rea.ini b/main/config/rea.ini
+new file mode 100644
+index 0000000..5bb9b28
+--- /dev/null
++++ b/main/config/rea.ini
+@@ -0,0 +1,12 @@
++[main]
++use = default.server
++
++[default.server]
++# the default AA server configuration
++url = http://rea-epicsarch.frib.msu.edu
++data_format = raw
++admin_disabled = true
++
++[pyarchappl-get]
++# default CLI options for pyarchappl-get
++use_json = false
+\ No newline at end of file
+-- 
+2.43.0
+
