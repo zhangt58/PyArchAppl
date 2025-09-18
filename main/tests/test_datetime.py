@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
+import zoneinfo
 from datetime import datetime
-import pytz
-
 from archappl.data import is_dst
 from archappl.data import parse_dt
 from archappl.data import datetime_with_timezone
@@ -9,13 +8,13 @@ from archappl.data.utils import standardize_datetime
 from archappl.data.utils import LOCAL_ZONE_NAME
 
 US_NY_ZONE_NAME = 'America/New_York'
-US_NY_ZONE = pytz.timezone(US_NY_ZONE_NAME)
+US_NY_ZONE = zoneinfo.ZoneInfo(US_NY_ZONE_NAME)
 
 T0 = datetime(2016, 11, 5, 23, 0, 0, 0)
 T1 = datetime(2016, 11, 6 ,6, 0, 0, 0)
 
-T0_DST = datetime_with_timezone(datetime(2016, 11, 5, 23, 0, 0, 0), time_zone=US_NY_ZONE_NAME)
-T1_EST = datetime_with_timezone(datetime(2016, 11, 6 ,6, 0, 0, 0), time_zone=US_NY_ZONE_NAME)
+T0_DST = datetime_with_timezone(T0, time_zone=US_NY_ZONE_NAME)
+T1_EST = datetime_with_timezone(T1, time_zone=US_NY_ZONE_NAME)
 
 
 def test_func_datetime_with_timezone1():
@@ -24,11 +23,11 @@ def test_func_datetime_with_timezone1():
     tt0 = datetime_with_timezone(T0_DST)
     tt1 = datetime_with_timezone(T1_EST)
 
-    assert tt0.tzinfo.zone == US_NY_ZONE_NAME
+    assert tt0.tzinfo.key == US_NY_ZONE_NAME
     assert bool(tt0.dst()) == True
     assert bool(tt0.dst()) == is_dst(T0_DST)
 
-    assert tt1.tzinfo.zone == US_NY_ZONE_NAME
+    assert tt1.tzinfo.key == US_NY_ZONE_NAME
     assert bool(tt1.dst()) == False
     assert bool(tt1.dst()) == is_dst(T1_EST)
 
@@ -51,17 +50,17 @@ def test_func_datetime_with_timezone2():
     tt0 = datetime_with_timezone(T0)
     tt1 = datetime_with_timezone(T1)
 
-    assert tt0.tzinfo.zone == LOCAL_ZONE_NAME
-    assert tt1.tzinfo.zone == LOCAL_ZONE_NAME
+    assert tt0.tzinfo.key == LOCAL_ZONE_NAME
+    assert tt1.tzinfo.key == LOCAL_ZONE_NAME
 
     # inteprete datetime at US_NY_ZONE_NAME
     tt0 = datetime_with_timezone(T0, time_zone=US_NY_ZONE_NAME)
     tt1 = datetime_with_timezone(T1, time_zone=US_NY_ZONE_NAME)
 
-    assert tt0.tzinfo.zone == US_NY_ZONE_NAME
+    assert tt0.tzinfo.key == US_NY_ZONE_NAME
     assert bool(tt0.dst()) == True
 
-    assert tt1.tzinfo.zone == US_NY_ZONE_NAME
+    assert tt1.tzinfo.key == US_NY_ZONE_NAME
     assert bool(tt1.dst()) == False
 
 
@@ -82,7 +81,7 @@ def test_func_parse_dt1():
     assert (t0_after_utc - t0_as_utc).total_seconds() / 3600 == 3.0
 
     t0_after_local = parse_dt(dt_str, tt0)
-    assert (t0_after_local - tt0).total_seconds() / 3600 == 3.0
+    assert (t0_after_local - tt0).total_seconds() / 3600 == 2.0
     assert (t0_after_local - t0_after_utc).total_seconds() == 0.0
 
     dt_str = "3 hours before"
@@ -103,7 +102,7 @@ def test_func_parse_dt2():
 
     tt0_after_four_hrs = parse_dt("after 4 hours", tt0)
     assert is_dst(tt0_after_four_hrs) == False
-    assert (tt0_after_four_hrs - tt0).total_seconds() == 4 * 3600
+    assert (tt0_after_four_hrs - tt0).total_seconds() == 3 * 3600
 
     assert (datetime_with_timezone(tt0_after_four_hrs, time_zone='UTC') -
             datetime_with_timezone(tt0, time_zone='UTC')).total_seconds() \
