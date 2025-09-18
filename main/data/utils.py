@@ -34,7 +34,7 @@ def standardize_datetime(date_time: Union[tuple, datetime], time_zone: Union[str
     ----------
     date_time : tuple | datetime
         A tuple of `(year, month, day, hour, minute, second, millisecond)` or a shorter one;
-        or define with a datetime object, if tzinfo is defined, ignore *time_zone*.
+        or define with a datetime object, if `tzinfo` is defined, ignore *time_zone*.
     time_zone : str
         Name of timezone, default is local time zone, e.g. 'EST',
         see `zoneinfo.available_timezones()`.
@@ -62,16 +62,22 @@ def standardize_datetime(date_time: Union[tuple, datetime], time_zone: Union[str
         _tz = zoneinfo.ZoneInfo(time_zone)
 
     if isinstance(date_time, tuple):
+        # a tuple as datetime without tzinfo
         dt_tuple = DatetimeTuple(*date_time)
         _t = datetime(dt_tuple.year, dt_tuple.month, dt_tuple.day,
                       dt_tuple.hour, dt_tuple.minute, dt_tuple.second,
                       dt_tuple.millisecond * 1000)
-        t = datetime_with_timezone(_t.replace(tzinfo=LOCAL_ZONE), 'UTC')
-    else: # datetime
+        # represent the datetime at the defined timezone and convert to UTC zone
+        t = datetime_with_timezone(_t.replace(tzinfo=_tz), 'UTC')
+    else:
+        # date_time is a datetime object
         if date_time.tzinfo is not None:
+            # convert to UTC zone for a datetime with tzinfo defined
             t = date_time.astimezone(UTC_ZONE)
         else:
-            _t = datetime_with_timezone(date_time, _tz.tzinfo.key)
+            # represent the datetime at the defined timezone
+            _t = datetime_with_timezone(date_time, _tz.key)
+            # then convert to UTC zone
             t = datetime_with_timezone(_t, 'UTC')
     return t, f"{t.year:4d}-{t.month:02d}-{t.day:02d}T{t.hour:02d}:{t.minute:02d}:{t.second:02d}.{int(t.microsecond/1000.0):03d}Z"
 
