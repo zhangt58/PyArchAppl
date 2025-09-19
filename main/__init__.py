@@ -14,7 +14,7 @@ __LOG_LEVEL_MAP = {
 
 # env: PYARCHAPPL_LOG_LEVEL: debug, info (default), warning, error, critical
 DEFAULT_LOGGING_LEVEL = __LOG_LEVEL_MAP.get(
-        os.environ.get('PYARCHAPPL_LOG_LEVEL', 'INFO').upper())
+        os.environ.get('PYARCHAPPL_LOG_LEVEL', 'WARNING').upper())
 
 logging.basicConfig(
         level=DEFAULT_LOGGING_LEVEL,

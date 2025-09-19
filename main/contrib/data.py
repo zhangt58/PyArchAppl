@@ -35,13 +35,13 @@ def _get_data(pv: str, from_time: str, to_time: str,
     except HitEmptyDataset:
         # got nothing
         r, reason = None, "NotExist"
-        _LOGGER.error(f"Got nothing, either '{pv}' is not being archived or no data in the given time range.")
+        _LOGGER.error(f"'{pv}' is not being archived or no data in the given time range.")
     except HitSingleDataEntry:
         reason = "SingleEntry"
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
         r = data
-        _LOGGER.warning(f"Only got a single sample for '{pv}'")
+        _LOGGER.warning(f"Got only one sample for '{pv}'")
     else:
         data.drop(columns=['severity', 'status'], inplace=True)
         data.rename(columns={'val': pv}, inplace=True)
@@ -123,7 +123,7 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
     if kws.pop('use_json', False):
         client.format = "json"
     df_list = []
-    _LOGGER.info("Started fetching data...")
+    _LOGGER.debug("Started fetching data...")
     if verbose != 0 and TQDM_INSTALLED:
         from archappl import tqdm
         pbar = tqdm(pv_list)
@@ -151,8 +151,7 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
         _df2 = _df1[~_df1.index.duplicated(keep='first')]
         data = _df2.resample(resample).ffill()
         data.dropna(inplace=True)
-    if verbose > 0:
-        _LOGGER.info(f"Fetched all data in {time.time() - t0_:.1f} seconds")
+    _LOGGER.debug(f"Fetched all data in {time.time() - t0_:.1f} seconds")
     return data
 
 
