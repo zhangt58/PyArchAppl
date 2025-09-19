@@ -1,3 +1,16 @@
+pyarchappl (1.0.3-1) unstable; urgency=medium
+
+  * BLD: Update the patch for bookworm.
+  * BLD: Remove tzlocal.
+  * Merge tag 'upstream/1.0.3' into uc5
+  * MNT: Bump version to 1.0.3.
+  * Merge branch 'master' of github.com:archman/PyArchAppl
+  * Provide an option to handle NaN for pyarchappl-get (#20)
+  * Merge branch 'master' of github.com:archman/PyArchAppl
+  * Refactor logs (#19)
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Fri, 19 Sep 2025 11:36:31 -0400
+
 pyarchappl (1.0.2-1) unstable; urgency=medium
 
   * BLD: Update patch to remove pyproject.toml.
