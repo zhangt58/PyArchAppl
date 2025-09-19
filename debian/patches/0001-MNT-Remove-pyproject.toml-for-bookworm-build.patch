@@ -1,6 +1,6 @@
-From 7524fc0e786a073fcf56b009100167f8c479410e Mon Sep 17 00:00:00 2001
+From 189eed639681775a2ea8a71a7d94e618eb264b40 Mon Sep 17 00:00:00 2001
 From: Tong Zhang <zhangt@frib.msu.edu>
-Date: Thu, 18 Sep 2025 17:41:23 -0400
+Date: Fri, 19 Sep 2025 11:40:49 -0400
 Subject: [PATCH] MNT: Remove pyproject.toml for bookworm build.
 
 ---
@@ -10,13 +10,13 @@ Subject: [PATCH] MNT: Remove pyproject.toml for bookworm build.
 
 diff --git a/pyproject.toml b/pyproject.toml
 deleted file mode 100644
-index 47ca421..0000000
+index bc3ef0a..0000000
 --- a/pyproject.toml
 +++ /dev/null
 @@ -1,73 +0,0 @@
 -[project]
 -name = "pyarchappl"
--version = "1.0.2"
+-version = "1.0.3"
 -authors = [
 -    { name="Tong Zhang" }
 -]
