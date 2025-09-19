@@ -152,15 +152,18 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
         _LOGGER.warning("Got nothing, return None")
         return None
     data = df_list[0].join(df_list[1:], how='outer')
-    if fillna_method == "nearest" and not SCIPY_INSTALLED:
-        _LOGGER.warning("Install scipy to support fillna_method 'nearest', fallback to 'ffill'.")
-        fillna_method = "ffill"
-    if fillna_method in ("nearest", "linear"):
-        data.interpolate(method=fillna_method, inplace=True)
-    if fillna_method == "ffill":
-        data = data.ffill()
-    if fillna_method == "bfill":
-        data = data.bfill()
+    if fillna_method == "none":
+        _LOGGER.warning("Keep NaNs as fillna_method is set 'none'")
+    else:
+        if fillna_method == "nearest" and not SCIPY_INSTALLED:
+            _LOGGER.warning("Install scipy to support fillna_method 'nearest', fallback to 'ffill'.")
+            fillna_method = "ffill"
+        if fillna_method in ("nearest", "linear"):
+            data.interpolate(method=fillna_method, inplace=True)
+        if fillna_method == "ffill":
+            data = data.ffill()
+        if fillna_method == "bfill":
+            data = data.bfill()
     if resample is not None:
         _LOGGER.info(f"Apply resampling with '{resample}'")
         _df1 = data[from_time:to_time]
