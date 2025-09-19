@@ -93,7 +93,7 @@ $ {n} -vv --pv-file pvlist.txt \\
 
 
 def main():
-    _LOGGER.info(f"Executing {os.path.basename(sys.argv[0])} ...")
+    _LOGGER.debug(f"Executing {os.path.basename(sys.argv[0])} {sys.argv[1:]} ...")
     args = parser.parse_args(sys.argv[1:])
 
     if args.version:
@@ -123,7 +123,7 @@ def main():
     # time range
     if args.from_time is None or args.to_time is None:
         _LOGGER.warning(
-            "Arguments: --from and/or --to is not set, refer to -h for time range set.")
+            "Arguments: --from and/or --to is not set, see -h for help.")
         # sys.exit(1)
     else:
         _LOGGER.info(f"Fetch data from {args.from_time} to {args.to_time}")
@@ -158,7 +158,7 @@ def main():
         client = ArchiverDataClient(url=args.url)
     if args.use_json:
         client.format = "json"
-    _LOGGER.info(f"{client}")
+    _LOGGER.debug(f"{client}")
 
     dset = get_dataset_with_pvs(pv_list, args.from_time, args.to_time, client=client,
                                 resample=args.resample, verbose=args.verbose,

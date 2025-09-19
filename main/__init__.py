@@ -14,7 +14,7 @@ __LOG_LEVEL_MAP = {
 
 # env: PYARCHAPPL_LOG_LEVEL: debug, info (default), warning, error, critical
 DEFAULT_LOGGING_LEVEL = __LOG_LEVEL_MAP.get(
-        os.environ.get('PYARCHAPPL_LOG_LEVEL', 'INFO').upper())
+        os.environ.get('PYARCHAPPL_LOG_LEVEL', 'WARNING').upper())
 
 logging.basicConfig(
         level=DEFAULT_LOGGING_LEVEL,
@@ -58,7 +58,7 @@ from archappl.client import *
 from archappl.data import *
 
 
-__version__ = '1.0.0'
+__version__ = '1.0.2'
 __author__ = 'Tong Zhang (@zhangt58)'
 
 __doc__ ="""PyArchAppl: Python interface of Archiver Appliance, module name: 'archappl'."""
