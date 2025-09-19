@@ -67,7 +67,7 @@ from archappl.client import *
 from archappl.data import *
 
 
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __author__ = 'Tong Zhang (@zhangt58)'
 
 __doc__ ="""PyArchAppl: Python interface of Archiver Appliance, module name: 'archappl'."""
