@@ -58,6 +58,10 @@ parser.add_argument('--last-n', '-n', dest='last_n', type=int, default=0,
                     "for multiple PVs, limit the PV with fewest samples to the defined value.")
 parser.add_argument('--show-config', action='store_true',
                     help="Print the site configuration with essential dependencies and their versions.")
+parser.add_argument('--fillna-method', dest='fillna_method', default='ffill',
+                    help="The method defines how the invalid data (NaN) should be filled, "
+                         "defaults to 'ffill', the last valid one is used, other options: "
+                         "'linear', 'nearest', 'bfill', or 'none' keep as-is.")
 
 parser.epilog = \
 """
@@ -93,7 +97,7 @@ $ {n} -vv --pv-file pvlist.txt \\
 
 
 def main():
-    _LOGGER.info(f"Executing {os.path.basename(sys.argv[0])} ...")
+    _LOGGER.debug(f"Executing {os.path.basename(sys.argv[0])} {sys.argv[1:]} ...")
     args = parser.parse_args(sys.argv[1:])
 
     if args.version:
@@ -123,7 +127,7 @@ def main():
     # time range
     if args.from_time is None or args.to_time is None:
         _LOGGER.warning(
-            "Arguments: --from and/or --to is not set, refer to -h for time range set.")
+            "Arguments: --from and/or --to is not set, see -h for help.")
         # sys.exit(1)
     else:
         _LOGGER.info(f"Fetch data from {args.from_time} to {args.to_time}")
@@ -158,11 +162,11 @@ def main():
         client = ArchiverDataClient(url=args.url)
     if args.use_json:
         client.format = "json"
-    _LOGGER.info(f"{client}")
+    _LOGGER.debug(f"{client}")
 
     dset = get_dataset_with_pvs(pv_list, args.from_time, args.to_time, client=client,
                                 resample=args.resample, verbose=args.verbose,
-                                last_n=args.last_n)
+                                last_n=args.last_n, fillna_method=args.fillna_method)
     if dset is None:
         _LOGGER.warning("No data to output.")
         sys.exit(1)
