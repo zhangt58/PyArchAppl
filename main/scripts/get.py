@@ -10,12 +10,20 @@ $ pyarchappl-get --verbose 1 --pv VA:LS1_CA01:BPM_D1129:X_RD --pv VA:LS1_CA01:BP
 """
 from archappl.client import ArchiverDataClient
 from archappl.contrib import get_dataset_with_pvs
+from archappl.data import (
+    standardize_datetime,
+    datetime_with_timezone,
+    iso_to_datetime,
+    parse_dt
+)
 
 import argparse
 import logging
 import sys
 import os
 import json
+
+from datetime import datetime
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,15 +42,27 @@ parser.add_argument('--pv', action='append', dest='pv_list',
 parser.add_argument('--pv-file', dest='pv_file', default=None,
         help="A file for PVs, one PV per line (skip line starts with #), append each to pv_list")
 parser.add_argument('--from', dest='from_time',
-        help="A string of begin time in ISO8601 format")
+        help="A string of begin time in ISO8601 format, default to '--to' - '--time_span'")
 parser.add_argument('--to', dest='to_time',
-        help="A string of end time in ISO8601 format")
+        help="A string of end time in ISO8601 format, defaults to now.")
+parser.add_argument('--time-span', dest='time_span', type=str, default="6 hours",
+        help='''The relative time shift w.r.t. 'to_time' set with '--to',
+
+Relative time difference defined in valid units:
+*years*, *months*, *weeks*, *days*, *hours*, *minutes*, *seconds*,
+*microseconds*, and some unit alias: *year*, *month*, *week*, *day*,
+*hour*, *minute*, *second*, *microsecond*, *mins*, *secs*, *msecs*,
+*min*, *sec*, *msec*, could be linked by string 'and' or ',',
+ends with 'before' or 'ago' (optional), e.g. '5 mins before',
+'1 hour and 30 mins before', '15 seconds ago', etc.
+''')
 parser.add_argument('--use-json', action='store_true',
         help="Fetch data in the form of JSON")
 parser.add_argument('--resample', dest='resample', default=None,
         help="The offset string/object representing target conversion, e.g. '1S' for resample with 1 second")
 parser.add_argument('--verbose', '-v', action='count', default=0,
-        help="Verbosity level of the log output, 0: no output, 1(-v): output progress, 2(-vv): output progress with description. Set env 'PYARCHAPPL_LOG_LEVEL' to control the log level.")
+        help="Verbosity level of the log output, 0: no output, 1(-v): output progress, 2(-vv): "
+             "output progress with description. Set env 'PYARCHAPPL_LOG_LEVEL' to control the log level.")
 parser.add_argument('--version', action='store_true',
         help="Print out version info")
 parser.add_argument('-o', '--output', dest='output', default=None,
@@ -50,18 +70,19 @@ parser.add_argument('-o', '--output', dest='output', default=None,
 parser.add_argument('-f', '--output-format', dest='fmt', default='csv',
         help="File format for output data, supported: csv, hdf, excel, html, ...")
 parser.add_argument('--format-args', dest='fmt_args', type=json.loads, default='{}',
-        help='''Additional arguments passed to data export function in the form of dict, e.g. '{"key":"data"}' (for hdf format)''')
+        help="Additional arguments passed to data export function in the form of dict, "
+             '''e.g. '{"key":"data"}' (for hdf format)''')
 parser.add_argument('--log-file', dest='logfile', default=None,
         help="File path for log messages, print to stdout if not defined.")
 parser.add_argument('--last-n', '-n', dest='last_n', type=int, default=0,
-                    help="Limit the maximum number of most recent samples to retrieve for each PV; "
-                    "for multiple PVs, limit the PV with fewest samples to the defined value.")
+        help="Limit the maximum number of most recent samples to retrieve for each PV; "
+             "for multiple PVs, limit the PV with fewest samples to the defined value.")
 parser.add_argument('--show-config', action='store_true',
-                    help="Print the site configuration with essential dependencies and their versions.")
+        help="Print the site configuration with essential dependencies and their versions.")
 parser.add_argument('--fillna-method', dest='fillna_method', default='ffill',
-                    help="The method defines how the invalid data (NaN) should be filled, "
-                         "defaults to 'ffill', the last valid one is used, other options: "
-                         "'linear', 'nearest', 'bfill', or 'none' keep as-is.")
+        help="The method defines how the invalid data (NaN) should be filled, "
+             "defaults to 'ffill', the last valid one is used, other options: "
+             "'linear', 'nearest', 'bfill', or 'none' keep as-is.")
 
 parser.epilog = \
 """
@@ -125,12 +146,34 @@ def main():
         _LOGGER.info(f"Write log messages to {args.logfile}")
 
     # time range
-    if args.from_time is None or args.to_time is None:
-        _LOGGER.warning(
-            "Arguments: --from and/or --to is not set, see -h for help.")
-        # sys.exit(1)
+    t_now_o, t_now = standardize_datetime(datetime_with_timezone(datetime.now()))
+
+    #
+    time_span = f"{args.time_span} before"
+    if args.to_time is None:
+        # use now as to_time
+        t2_o, t2 = t_now_o, t_now
+        _LOGGER.warning(f"  --to is not defined, defaults to '{t_now}'.")
     else:
-        _LOGGER.info(f"Fetch data from {args.from_time} to {args.to_time}")
+        try:
+            t2_o, t2 = iso_to_datetime(args.to_time)
+        except ValueError:
+            _LOGGER.error(f"Invalid ISO time format via '--to', see -h.")
+            sys.exit(1)
+
+    if args.from_time is None:
+        # compute based on t2 and time-span
+        t1_o = parse_dt(time_span, t2_o)
+        _, t1 = standardize_datetime(t1_o, "UTC")
+        _LOGGER.warning(f"--from is not defined, defaults to '{t1}'.")
+    else:
+        try:
+            _, t1 = iso_to_datetime(args.from_time)
+        except ValueError:
+            _LOGGER.error(f"Invalid ISO time format via '--from', see -h.")
+            sys.exit(1)
+
+    _LOGGER.info(f"Time range: '{t1}' - '{t2}'")
 
     # pv list
     if args.pv_list is None:
@@ -164,7 +207,7 @@ def main():
         client.format = "json"
     _LOGGER.debug(f"{client}")
 
-    dset = get_dataset_with_pvs(pv_list, args.from_time, args.to_time, client=client,
+    dset = get_dataset_with_pvs(pv_list, t1, t2, client=client,
                                 resample=args.resample, verbose=args.verbose,
                                 last_n=args.last_n, fillna_method=args.fillna_method)
     if dset is None:
