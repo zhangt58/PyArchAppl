@@ -3,6 +3,7 @@
 
 import zoneinfo
 import dateutil.relativedelta as relativedelta
+import re
 import time
 from datetime import datetime
 from typing import Union
@@ -285,9 +286,9 @@ def parse_dt(dt, ref_datetime=None, epoch=None):
                        'msec': 'microseconds', 'mins': 'minutes',
                        'secs': 'seconds', 'msecs': 'microseconds'}
 
-    is_retro = 'before' in dt
+    is_retro = 'before' in dt or 'ago' in dt
     dt_dict = {}
-    dt_tuple = dt.replace('after', '').replace('and', ',').replace('before', ',').strip(' ,').split(',')
+    dt_tuple = dt.replace('after', '').replace('and', ',').replace('before', ',').replace('ago', ',').strip(' ,').split(',')
     for part in dt_tuple:
         v, k = part.strip().split()
         dt_dict[time_unit_table[k]] = int(v)
@@ -305,6 +306,40 @@ def parse_dt(dt, ref_datetime=None, epoch=None):
     else:
         r = _datetime
     return datetime_with_timezone(r)
+
+
+def iso_to_datetime(s: str) -> tuple[datetime, str]:
+    """ Parse a ISO8601 string into a datetime object with ZoneInfo.
+
+    Supported inputs:
+    - 2021-04-15T21:25:00.000Z     -> UTC
+    - 2021-04-15T17:25:00.00-04:00 -> UTC-4
+    - 2021-04-15T17:25:00.00       -> local zone
+    - 2021-04-15T17:25:00          -> expand ms, local zone
+    - 2021-04-15T17:25             -> expand seconds + ms, local zone
+    """
+    # Normalize Z → +00:00
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+
+    # Expand forms like YYYY-MM-DDTHH:MM
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$", s):
+        s += ":00.00"
+    elif re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$", s):
+        s += ".00"
+
+    # Try parsing with timezone info
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        raise ValueError(f"Unsupported datetime format: {s}")
+
+    # If no tzinfo, add local zone
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=LOCAL_ZONE)
+
+    # convert to UTC zone
+    return standardize_datetime(dt, "UTC")
 
 
 # see phantasy_ui.printlog
