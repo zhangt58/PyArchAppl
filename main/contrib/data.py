@@ -158,7 +158,7 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
     if fillna_method in ("nearest", "linear"):
         data.interpolate(method=fillna_method, inplace=True)
     if fillna_method == "ffill":
-        data = data.bfill()
+        data = data.ffill()
     if fillna_method == "bfill":
         data = data.bfill()
     if resample is not None:

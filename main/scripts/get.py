@@ -60,7 +60,7 @@ parser.add_argument('--show-config', action='store_true',
                     help="Print the site configuration with essential dependencies and their versions.")
 parser.add_argument('--fillna-method', dest='fillna_method', default='ffill',
                     help="The method defines how the invalid data (NaN) should be filled, "
-                         "defaults 'ffill', the last valid one is used, other options: "
+                         "defaults to 'ffill', the last valid one is used, other options: "
                          "'linear', 'nearest', 'bfill', or 'none' keep as-is.")
 
 parser.epilog = \
