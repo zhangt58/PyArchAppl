@@ -92,6 +92,15 @@ def test_func_parse_dt1():
     assert (t0_before_local - tt0).total_seconds() / 3600 == -3.0
     assert (t0_before_local - t0_before_utc).total_seconds() == 0.0
 
+    dt_str = "3 hours ago"
+    t0_before_utc = parse_dt(dt_str, t0_as_utc)
+    assert (t0_before_utc - t0_as_utc).total_seconds() / 3600 == -3.0
+
+    t0_before_local = parse_dt(dt_str, tt0)
+    assert (t0_before_local - tt0).total_seconds() / 3600 == -3.0
+    assert (t0_before_local - t0_before_utc).total_seconds() == 0.0
+
+
 
 def test_func_parse_dt2():
     """Test returned datetime DST or not.

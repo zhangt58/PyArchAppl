@@ -3,6 +3,7 @@ from .utils import iso_to_epoch
 from .utils import epoch_to_iso
 from .utils import parse_dt
 from .utils import datetime_with_timezone
+from .utils import iso_to_datetime
 from .utils import is_dst
 from .utils import standardize_datetime
 from .utils import printlog
