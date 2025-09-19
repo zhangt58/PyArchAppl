@@ -53,6 +53,15 @@ else:
     TQDM_INSTALLED = True
     _LOGGER.debug("Progressbar display is supported")
 
+try:
+    import scipy
+except (ModuleNotFoundError, ImportError):
+    SCIPY_INSTALLED = False
+    _LOGGER.debug("'scipy' is not installed")
+else:
+    SCIPY_INSTALLED = True
+    _LOGGER.debug("'scipy' is installed")
+
 
 from archappl.client import *
 from archappl.data import *
