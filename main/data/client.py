@@ -123,7 +123,7 @@ class ArchiverDataClient(object):
 
         r = requests.get(url)
         if not r.ok:
-            _LOGGER.error(f"Fetched data error: {r.status_code}")
+            _LOGGER.error(f"Error fetching data for '{pv}': {r.status_code}")
             return None
         if self.format == 'raw':
             return normalize(unpack_raw_data(r.content), tz, last_n=last_n)
