@@ -317,6 +317,11 @@ def iso_to_datetime(s: str) -> tuple[datetime, str]:
     - 2021-04-15T17:25:00.00       -> local zone
     - 2021-04-15T17:25:00          -> expand ms, local zone
     - 2021-04-15T17:25             -> expand seconds + ms, local zone
+
+    Returns
+    -------
+    r : tuple
+        A tuple of datetime object and isoformat at UTC zone.
     """
     # Normalize Z → +00:00
     if s.endswith("Z"):

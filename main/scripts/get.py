@@ -149,7 +149,7 @@ def main():
     t_now_o, t_now = standardize_datetime(datetime_with_timezone(datetime.now()))
 
     #
-    time_span = args.time_span + "before"
+    time_span = f"{args.time_span} before"
     if args.to_time is None:
         # use now as to_time
         t2_o, t2 = t_now_o, t_now
