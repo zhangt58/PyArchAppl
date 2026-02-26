@@ -1,3 +1,89 @@
+pyarchappl (1.0.3-1) unstable; urgency=medium
+
+  * BLD: Update the patch for bookworm.
+  * BLD: Remove tzlocal.
+  * Merge tag 'upstream/1.0.3' into uc5
+  * MNT: Bump version to 1.0.3.
+  * Merge branch 'master' of github.com:archman/PyArchAppl
+  * Provide an option to handle NaN for pyarchappl-get (#20)
+  * Merge branch 'master' of github.com:archman/PyArchAppl
+  * Refactor logs (#19)
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Fri, 19 Sep 2025 11:36:31 -0400
+
+pyarchappl (1.0.2-1) unstable; urgency=medium
+
+  * BLD: Update patch to remove pyproject.toml.
+  * BLD: WIP, release 1.0.2-1.
+  * Merge tag 'upstream/1.0.2' into uc5
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Thu, 18 Sep 2025 17:40:23 -0400
+
+pyarchappl (1.0.1-1) unstable; urgency=medium
+
+  * BLD: Update lintian overrides.
+  * BLD: Set PYBUILD DEST.
+  * BLD: Add the patch to replace pyproject.toml with setup.py.
+  * BLD: Install the site config file.
+  * BLD: Add site config files via patches.
+  * Merge tag 'upstream/1.0.1' into uc5
+  * Updated configs, resolved timezone issues, migrated to pyproject.toml, etc. (#13)
+  * Merge tag 'upstream/1.0.0' into uc5
+  * Set up CI for Python 3.12 and 3.13 (#8)
+  * Update README (#7)
+  * MNT: Remove email.
+  * MNT: Bump version to 1.0.0.
+  * MNT: Keep default configuration file only.
+  * FIX: Need fetch data from all PVs to compose the element field values.
+  * MNT: Update README.
+  * MNT: Added badges.
+  * CI: Drop ubuntu 20.04, Python 3.6,3.7,3.8, support 3.9,3.10,3.11.
+  * MNT: Set 'admin_disabled' as true for default site config.
+  * REF: Handle the exception of get_stores_for_pv(), return SimpleNamespace.
+  * REF: Migrate '--key info' to --info, added examples.
+  * REF: Support writing output to a file.
+  * REF: Support --key stores for get_stores_for_pv().
+  * FIX: Test cases for mgmt client.
+  * MNT: Add pyarchappl-inspect as CLI tool.
+  * MNT: Add openpyxl depend.
+  * ENH: Add a CLI tool for inspection with mgmt API.
+  * REF: Get the last n samples via --last-n argument.
+  * REF: Update archive_pv method.
+  * REF: Optimize the data retieval, add argument 'last_n', update the log messages.
+  * ENH: Add function for PV(s) status.
+  * FIX: Exit the program if the fetched dataset is None.
+  * MNT: Update log messages.
+  * REF: Remove use_json argument from _get_data(), set client data_format for only once.
+  * REF: Remove the ArchiverDataClient instances for specific sites.
+  * TST: Add a configuration file with admin_disabled as true.
+  * REF: Print out log messages.
+  * TST: Skip admin client tests if admin_disabled is true.
+  * REF: Make import ArchiverMgmtClient error if 'admin_disabled' is true.
+  * MNT: Add admin_disabled bool key under server config.
+  * MNT: Add site configuration files for FRIB and ReA.
+  * REF: Support override config filepath with env 'PYARCHAPPL_CONFIG_FILE'.
+  * REF: Define the default data request format thru 'data_format' in config file.
+  * TST: Add test cases for site config.
+  * MNT: Expand the default site config.
+  * REF: Initialize data and admin client by reading site config.
+  * REF: Support searching config file on priority.
+  * MNT: Initialized the configuration file support.
+  * MNT: Add requirements for development.
+  * MNT: Restrict numpy version >1.0,<2.0.
+  * REF: Return a dataframe from get_pv_details().
+  * TST: Add test case for getPVDetails API.
+  * ENH: Add method for getPVDetails API.
+  * TST: Added test cases for mgmt client.
+  * REF: Update methods for mgmt API.
+  * CI: Matrix os and python versions (#6)
+  * MNT: Bump version to 0.10.7.
+  * FIX: Replace namedtuple with class.
+  * MNT: Bump version to 0.10.6.
+  * MNT: Remove defaults of namedtuple, only support Python >=3.7.
+  * MNT: Add a minimal example for get data at time.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Thu, 18 Sep 2025 09:08:56 -0400
+
 pyarchappl (0.10.5-1) unstable; urgency=medium
 
   * Merge tag 'upstream/0.10.5' into uc5

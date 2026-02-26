@@ -1,0 +1,36 @@
+From cc37334a7d137d59fa1d46e7c0fa3bcbc4a918e1 Mon Sep 17 00:00:00 2001
+From: Tong Zhang <zhangt@frib.msu.edu>
+Date: Thu, 18 Sep 2025 09:14:34 -0400
+Subject: [PATCH 2/2] REF: Update the config for FTC deployment.
+
+---
+ main/config/frib.ini | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/main/config/frib.ini b/main/config/frib.ini
+index 38fa529..8081f35 100644
+--- a/main/config/frib.ini
++++ b/main/config/frib.ini
+@@ -1,13 +1,16 @@
+ [main]
+-use = default.server
++use = ftc
+ 
+-[default.server]
++[ftc]
+ url = http://epicsarchiver1.ftc
+ admin_port = 17665
+ data_port = 17668
+ data_format = raw
+ admin_disabled = false
+ 
+-[pyarchappl-get]
++[cli.pyarchappl-get]
+ # default CLI options for pyarchappl-get
+ use_json = false
++
++[misc]
++local_timezone = America/Detroit
+-- 
+2.43.0
+
