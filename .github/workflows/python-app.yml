@@ -7,20 +7,39 @@ on: push
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Build and Test
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            py: "3.9"
+          - os: ubuntu-22.04
+            py: "3.10"
+          - os: ubuntu-22.04
+            py: "3.11"
+          - os: ubuntu-24.04
+            py: "3.12"
+          - os: ubuntu-24.04
+            py: "3.13"
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2.3.1
+    - uses: actions/checkout@v4
       with:
         persist-credentials: false
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
+    - name: Set up Python ${{ matrix.py }}
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.8
+        python-version: ${{ matrix.py }}
     - name: Install dependencies
       run: |
+        python -c "import sys; print(sys.version)"
         python -m pip install --upgrade pip
-        pip install flake8 pytest wheel
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install flake8 pytest wheel build setuptools
+        if [ "${{ matrix.py }}" = "3.12" ] || [ "${{ matrix.py }}" = "3.13" ]; then
+          pip install -r requirements-3.13.txt
+        else
+          pip install -r requirements.txt
+        fi
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -29,12 +48,28 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        python setup.py bdist_wheel
+        python -m build --wheel
         pip install dist/*.whl --upgrade
         cd main/tests
         pytest -vs
+
+  gh-page:
+    runs-on: ubuntu-latest
+    name: Publish GitHub Pages
+    needs: build
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
     - name: Build documentation
       run: |
+        pip install wheel build setuptools
+        python -m build --wheel
+        pip install dist/*.whl --upgrade
         pip install sphinx pydata_sphinx_theme
         cd doc
         make html
@@ -47,9 +82,37 @@ jobs:
         BRANCH: gh-pages
         FOLDER: doc/build/html
         CLEAN: true
+
+  pypi-package:
+    name: Release packages to PyPI
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            py: "3.13"
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python ${{ matrix.py }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.py }}
+    - name: Build wheel
+      run: |
+        python -m pip install --upgrade pip
+        pip install build setuptools
+        if [ "${{ matrix.py }}" = "3.12" ] || [ "${{ matrix.py }}" = "3.13" ]; then
+          pip install -r requirements-3.13.txt
+        else
+          pip install -r requirements.txt
+        fi
+        python -m build --wheel
     - name: Publish package to PyPI
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@v1.4.1
       with:
-          user: __token__
-          password: ${{ secrets.PYPI_PASSWORD }}
+        user: __token__
+        password: ${{ secrets.PYPI_PASSWORD }}

@@ -12,9 +12,9 @@ __LOG_LEVEL_MAP = {
     'CRITICAL': logging.CRITICAL,
 }
 
-# env: ARCHAPPL_LOG_LEVEL: debug, info (default), warning, error, critical
+# env: PYARCHAPPL_LOG_LEVEL: debug, info (default), warning, error, critical
 DEFAULT_LOGGING_LEVEL = __LOG_LEVEL_MAP.get(
-        os.environ.get('ARCHAPPL_LOG_LEVEL', 'INFO').upper())
+        os.environ.get('PYARCHAPPL_LOG_LEVEL', 'WARNING').upper())
 
 logging.basicConfig(
         level=DEFAULT_LOGGING_LEVEL,
@@ -36,32 +36,40 @@ try:
         _LOGGER.debug("Running in Jupyter Notebook")
     else:
         NB_SHELL = False
-        _LOGGER.warning("Not running in Jupyter Notebook")
-except ImportError:
+        _LOGGER.debug("Not running in Jupyter Notebook")
+except (ImportError, ModuleNotFoundError):
     NB_SHELL = False
-    _LOGGER.warning("'IPython' is not installed")
-finally:
-    import pkg_resources
-    try:
-        pkg_resources.get_distribution('tqdm')
-    except pkg_resources.DistributionNotFound:
-        TQDM_INSTALLED = False
-        _LOGGER.warning("'tqdm' is not installed")
+    _LOGGER.debug("'IPython' is not installed")
+
+try:
+    if NB_SHELL:
+        from tqdm.notebook import tqdm
     else:
-        TQDM_INSTALLED = True
-        _LOGGER.debug("Progressbar display is supported")
-        if NB_SHELL:
-            from tqdm.notebook import tqdm
-        else:
-            from tqdm import tqdm
+        from tqdm import tqdm
+except (ModuleNotFoundError, ImportError):
+    TQDM_INSTALLED = False
+    _LOGGER.debug("'tqdm' is not installed")
+else:
+    TQDM_INSTALLED = True
+    _LOGGER.debug("Progressbar display is supported")
+
+try:
+    import scipy
+except (ModuleNotFoundError, ImportError):
+    SCIPY_INSTALLED = False
+    _LOGGER.debug("'scipy' is not installed")
+else:
+    SCIPY_INSTALLED = True
+    _LOGGER.debug("'scipy' is installed")
+
 
 from archappl.client import *
 from archappl.data import *
 
 
-__version__ = '0.10.4'
-__author__ = 'Tong Zhang <zhangt@frib.msu.edu>'
+__version__ = '1.0.3'
+__author__ = 'Tong Zhang (@zhangt58)'
 
-__doc__ ="""archappl: Python interface of Archiver Appliance."""
+__doc__ ="""PyArchAppl: Python interface of Archiver Appliance, module name: 'archappl'."""
 
-_LOGGER.info(f"Running archappl version: {__version__}")
+_LOGGER.info(f"Running PyArchAppl version: {__version__}")
