@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import sys
 import time
 import pandas as pd
 from typing import Union
@@ -84,8 +85,8 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
         The offset string or object representing target conversion, e.g. resample with 1 second
         offset could be defined as '1S'.
     verbose : int
-        Verbosity level of the log output, default is 0, no output, 1, output progress, 2 output
-        progress with description.
+        Verbosity level of the log output: 0, no output; 1, output progress; 2, output progress
+        with descriptions; 3, also output the full requested URL for each PV.
     use_json : bool
         If set True, fetch data in the form of JSON instead of RAW, default is False.
     last_n : int
@@ -138,14 +139,18 @@ def get_dataset_with_pvs(pv_list: list[str], from_time: Union[str, None] = None,
     else:
         pbar = pv_list
     for pv in pbar:
+        if verbose > 2:
+            request_url = client.get_data_url(
+                pv, from_time=from_time, to_time=to_time)
+            print(f"Requested URL: {request_url}", file=sys.stderr)
         data_, reason_ = _get_data(pv, from_time, to_time, client=client, last_n=last_n)
         if reason_ == 'NotExist':
             _LOGGER.info(f"Skip PV: '{pv}'")
-            if verbose > 1:
+            if verbose > 1 and TQDM_INSTALLED:
                 pbar.set_description(f"Skip '{pv}'")
             continue
         df_list.append(data_)
-        if verbose > 1:
+        if verbose > 1 and TQDM_INSTALLED:
             pbar.set_description(f"Fetched data for '{pv}'")
             _LOGGER.debug(f"Fetched data for '{pv}'")
     if not df_list:
@@ -198,8 +203,8 @@ def get_dataset_with_devices(element_list, field_list, from_time=None, to_time=N
         The offset string or object representing target conversion, e.g. resample with 1 second
         offset could be defined as '1S'.
     verbose : int
-        Verbosity level of the log output, default is 0, no output, 1, output progress, 2 output
-        progress with description.
+        Verbosity level of the log output: 0, no output; 1, output progress; 2, output progress
+        with descriptions; 3, also output the full requested URL for each PV.
     handle : str
         PV handle for field list, by default is 'readback', other options: 'setpoint'.
 

@@ -109,17 +109,13 @@ class ArchiverDataClient(object):
         r : pd.DataFrame
             A pandas dataframe with the timestamp as the index.
         """
-        from_time = kws.get('from_time', None)
-        to_time = kws.get('to_time', None)
         last_n = kws.get('last_n', 0)
         tz = kws.get('tz', LOCAL_ZONE_NAME)
-        p = ['pv={}'.format(pv)]
-        if from_time is not None:
-            p.append('from={}'.format(from_time))
-        if to_time is not None:
-            p.append('to={}'.format(to_time))
-
-        url = self.url + '?' + '&'.join(p)
+        url = self.get_data_url(
+            pv,
+            from_time=kws.get('from_time', None),
+            to_time=kws.get('to_time', None),
+        )
 
         r = requests.get(url)
         if not r.ok:
@@ -134,6 +130,31 @@ class ArchiverDataClient(object):
                 return None
             else:
                 return normalize(data_, tz, last_n=last_n)
+
+    def get_data_url(self, pv: str, **kws) -> str:
+        """Return the full URL used to request data for *pv*.
+
+        Parameters
+        ----------
+        pv : str
+            A string of PV name.
+
+        Keyword Arguments
+        -----------------
+        from_time : str
+            A string of start time of the dataset in ISO8601 format.
+        to_time : str
+            A string of end time of the dataset in ISO8601 format.
+        """
+        from_time = kws.get('from_time', None)
+        to_time = kws.get('to_time', None)
+        p = ['pv={}'.format(pv)]
+        if from_time is not None:
+            p.append('from={}'.format(from_time))
+        if to_time is not None:
+            p.append('to={}'.format(to_time))
+
+        return requests.Request('GET', self.url + '?' + '&'.join(p)).prepare().url
 
     def __repr__(self):
         return f"[({self.format}) Data Client] connected to Archiver Appliance at: {self._url_config[0]}"
