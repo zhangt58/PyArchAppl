@@ -4,6 +4,7 @@ package mgmtclient
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -28,6 +29,18 @@ func (c *Client) endpoint(path string) string {
 	return strings.TrimRight(c.BaseURL, "/") + "/mgmt/bpl/" + path
 }
 
+// HTTPError is returned by getJSON when the server responds with a
+// non-2xx status code, so callers can distinguish HTTP errors from
+// transport or decoding failures without resorting to string matching.
+type HTTPError struct {
+	StatusCode int
+	URL        string
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("HTTP %d requesting %s", e.StatusCode, e.URL)
+}
+
 func (c *Client) getJSON(path string, params url.Values, out interface{}) error {
 	u := c.endpoint(path)
 	if len(params) > 0 {
@@ -43,7 +56,7 @@ func (c *Client) getJSON(path string, params url.Values, out interface{}) error 
 		return err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("HTTP %d requesting %s", resp.StatusCode, u)
+		return &HTTPError{StatusCode: resp.StatusCode, URL: u}
 	}
 	if out == nil {
 		return nil
@@ -104,7 +117,8 @@ func (c *Client) GetPVTypeInfo(pv string) (map[string]interface{}, error) {
 	var out map[string]interface{}
 	params := url.Values{"pv": []string{pv}}
 	if err := c.getJSON("getPVTypeInfo", params, &out); err != nil {
-		if strings.Contains(err.Error(), "HTTP 4") || strings.Contains(err.Error(), "HTTP 5") {
+		var httpErr *HTTPError
+		if errors.As(err, &httpErr) {
 			return nil, nil
 		}
 		return nil, err

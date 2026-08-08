@@ -306,7 +306,15 @@ func UnpackRawData(data []byte) (*PVData, error) {
 	for _, rawLine := range lines {
 		line := bytes.TrimSpace(rawLine)
 		if len(line) == 0 {
-			hitHeader = true
+			// A blank line separates blocks in the pbraw stream. Only
+			// re-arm header parsing once we've actually recorded a
+			// header; otherwise a stray leading blank line (or one
+			// immediately following a header, before any samples) must
+			// not cause the next content line to be mis-parsed as a
+			// second header and silently discard the current one.
+			if info != nil {
+				hitHeader = true
+			}
 			continue
 		}
 		unescaped := unescape(line)
