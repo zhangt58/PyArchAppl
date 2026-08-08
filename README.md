@@ -72,6 +72,11 @@ PyArchAppl provides convenient CLI tools:
 - `pyarchappl-get` &mdash; Retrieve data (use `-h` for help)
 - `pyarchappl-inspect` &mdash; Inspect archiver information (use `-h` for help)
 
+A Go implementation of these same CLI tools is being developed under
+[`go/`](./go), reading the same site configuration file format. See
+[go/README.md](./go/README.md) for details; it is a work in progress and
+does not yet have full feature parity with the Python tools.
+
 ---
 
 ## Configuration

@@ -101,3 +101,9 @@ ENV/
 
 # vi
 *.swp
+
+# Go build artifacts
+/go/pyarchappl-get
+/go/pyarchappl-inspect
+/go/cmd/**/pyarchappl-get
+/go/cmd/**/pyarchappl-inspect
