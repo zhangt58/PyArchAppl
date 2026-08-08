@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -49,13 +50,14 @@ func (c *Client) endpoint() string {
 // window [fromTime, toTime), both in ISO8601 format. An empty string omits
 // the corresponding query parameter, matching the Python client behavior.
 func (c *Client) GetData(pv, fromTime, toTime string) ([]Point, error) {
-	u := fmt.Sprintf("%s?pv=%s", c.endpoint(), pv)
+	params := url.Values{"pv": []string{pv}}
 	if fromTime != "" {
-		u += "&from=" + fromTime
+		params.Set("from", fromTime)
 	}
 	if toTime != "" {
-		u += "&to=" + toTime
+		params.Set("to", toTime)
 	}
+	u := c.endpoint() + "?" + params.Encode()
 
 	resp, err := c.HTTP.Get(u)
 	if err != nil {
