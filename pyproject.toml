@@ -1,6 +1,6 @@
 [project]
 name = "pyarchappl"
-version = "1.0.3-2"
+version = "1.0.3-3"
 authors = [
     { name="Tong Zhang" }
 ]
